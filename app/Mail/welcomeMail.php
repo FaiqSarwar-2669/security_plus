@@ -16,9 +16,10 @@ class welcomeMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public $name;
+    public function __construct(string $name)
     {
-        //
+        $this->name = $name;
     }
 
     /**
@@ -37,17 +38,10 @@ class welcomeMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'welcomeMail',
+            with: [
+                'name' => $this->name,
+            ],
         );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
     }
 }

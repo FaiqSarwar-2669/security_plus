@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\registeration;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use App\Mail\welcomeMail;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterationController extends Controller
 {
@@ -77,6 +79,7 @@ class RegisterationController extends Controller
             }
             $newUser->email = $request->input('email');
             $newUser->save();
+            Mail::to($request->input('email'))->send(new welcomeMail($request->input('bussiness_owner')));
             return response()->json([
                 'message' => 'Your applicaiton submitted, wait for approval'
             ]);
