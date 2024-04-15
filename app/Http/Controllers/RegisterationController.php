@@ -56,7 +56,7 @@ class RegisterationController extends Controller
         $User = registeration::where('email', $request->input('email'))->first();
         if ($User) {
             return response()->json([
-                'message' => 'This user already Exists'
+                'error' => 'This user already Exists'
             ]);
         } else {
             $newUser = new registeration();
