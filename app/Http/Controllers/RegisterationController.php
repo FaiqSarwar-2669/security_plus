@@ -7,6 +7,7 @@ use App\Models\registeration;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\welcomeMail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class RegisterationController extends Controller
@@ -16,7 +17,23 @@ class RegisterationController extends Controller
      */
     public function index()
     {
-        //
+        $organization = DB::table('registrations')->select(
+            'id',
+            'bussiness_fname',
+            'bussiness_lname',
+            'bussiness_owner',
+            'area_code',
+            'phone_number',
+            'street_address',
+            'city_name',
+            'province',
+            'bussiness_type',
+            'email',
+            'logo'
+        )->get();
+        return response()->json([
+            'data' => $organization
+        ],200);
     }
 
     /**

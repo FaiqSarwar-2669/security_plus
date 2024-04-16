@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterationController;
 
 Route::post('/registeration',[RegisterationController::class,'store']);
+Route::get('/organizations',[RegisterationController::class,'index']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
