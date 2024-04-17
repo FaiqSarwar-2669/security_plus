@@ -11,6 +11,7 @@ Route::post('/forgetPassword', [loginController::class, 'passwordReset']);
 Route::get('/organizations', [RegisterationController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    
     Route::post('/logout', [loginController::class, 'logout']);
 
     // Routes for Service Provider Companies

@@ -58,6 +58,7 @@ class loginController extends Controller
                 return response()->json([
                     'message' => 'Login successful',
                     'token' => $token,
+                    'role' => $user->bussiness_type
                 ], 200);
             } else {
                 return response()->json([
