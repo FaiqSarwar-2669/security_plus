@@ -6,6 +6,7 @@ use App\Http\Controllers\{RegisterationController, loginController};
 
 Route::post('/registeration', [RegisterationController::class, 'store']);
 Route::post('/login', [loginController::class, 'store']);
+Route::post('/forgetPassword', [loginController::class, 'passwordReset']);
 
 Route::get('/organizations', [RegisterationController::class, 'index']);
 

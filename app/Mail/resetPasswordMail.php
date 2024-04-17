@@ -16,10 +16,17 @@ class resetPasswordMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public $password;
+    public $fname;
+    public $lname;
+
+    public function __construct(string $fname, string $lname, string $password)
     {
-        //
+        $this->fname = $fname;
+        $this->lname = $lname;
+        $this->password = $password;
     }
+
 
     /**
      * Get the message envelope.
@@ -37,7 +44,12 @@ class resetPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'resetPassword',
+            with: [
+                'fname' => $this->fname,
+                'lname' => $this->lname,
+                'password' => $this->password,
+            ]
         );
     }
 

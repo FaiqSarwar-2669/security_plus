@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\login;
+use App\Mail\resetPasswordMail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class loginController extends Controller
 {
@@ -35,7 +38,7 @@ class loginController extends Controller
      */
     public function store(Request $request)
     {
-    
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
@@ -72,9 +75,30 @@ class loginController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function passwordReset(Request $request)
     {
-        //
+        $validate = Validator::make($request->all(), [
+            'email' => 'required|email'
+        ]);
+        if ($validate->fails()) {
+            return response()->json([
+                'error' => $validate->errors()
+            ]);
+        }
+        $user = login::where('email', $request->email)->first();
+        if ($user) {
+            $randomPassword = Str::random(10);
+            $user->password = Hash::make($randomPassword);
+            Mail::to($user->email)->send(new resetPasswordMail($user->bussiness_fname, $user->bussiness_lname, $randomPassword));
+            $user->save();
+            return response()->json([
+                'message' => 'Your password has been reset. Please check your email for the new password.'
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Invalid email address',
+            ], 401);
+        }
     }
 
     /**
