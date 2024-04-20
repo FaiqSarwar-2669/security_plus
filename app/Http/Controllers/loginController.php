@@ -97,7 +97,7 @@ class loginController extends Controller
             ]);
         } else {
             return response()->json([
-                'message' => 'Invalid email address !!',
+                'error' => 'Invalid email address !!',
             ], 401);
         }
     }

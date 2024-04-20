@@ -13,18 +13,17 @@ return new class extends Migration
     {
         Schema::create("registrations", function(Blueprint $table){
             $table->id();
-            $table->string('bussiness_fname');
-            $table->string('bussiness_lname');
+            $table->string('bussiness_fname')->nullable();
+            $table->string('bussiness_lname')->nullable();
             $table->string('bussiness_owner');
-            $table->string('area_code');
-            $table->string('phone_number');
-            $table->string('street_address');
-            $table->string('city_name');
-            $table->string('province');
+            $table->string('area_code')->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('street_address')->nullable();
+            $table->string('city_name')->nullable();
+            $table->string('province')->nullable();
             $table->string('bussiness_type');
             $table->string('password');
             $table->string('email')->unique();
-            $table->string('logo')->nullable();
             $table->boolean('active')->default(false);
             $table->timestamps();
         });

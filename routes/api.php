@@ -8,11 +8,12 @@ Route::post('/registeration', [RegisterationController::class, 'store']);
 Route::post('/login', [loginController::class, 'store']);
 Route::post('/forgetPassword', [loginController::class, 'passwordReset']);
 
-Route::get('/organizations', [RegisterationController::class, 'index']);
+
+
 
 Route::middleware('auth:sanctum')->group(function () {
-    
-    Route::post('/logout', [loginController::class, 'logout']);
+
+    Route::get('/logout', [loginController::class, 'logout']);
 
     // Routes for Service Provider Companies
     Route::middleware(['checkUserRole:Service Provider'])->group(function () {
@@ -24,10 +25,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Routes for Admin
     Route::middleware(['checkUserRole:Admin'])->group(function () {
+
+        Route::post('/newPassword',[RegisterationController::class, 'newPassword']);
+        //for register companies and organizations
+        Route::get('/registerCompanies', [RegisterationController::class, 'index']);
+        Route::get('/registerClientOrganization', [RegisterationController::class, 'registerClientOrganization']);
+
+        //for unregister companies and organizations
+        Route::get('/unRegisterCompanies', [RegisterationController::class, 'inActiveCompanies']);
+        Route::get('/unRegisterClient', [RegisterationController::class, 'unRegisterClientOrganization']);
+
+        //for activation and inactivation
+        Route::post('/activation', [RegisterationController::class, 'inActiveOrganizationsMethod']);
+
+        Route::post('/inActivation', [RegisterationController::class, 'activeOrganizationsMethod']);
     });
 
     // Routes for Guards
     Route::middleware(['checkUserRole:Guards'])->group(function () {
     });
-
 });

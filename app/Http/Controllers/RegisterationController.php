@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Mail\welcomeMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
+
+use function Laravel\Prompts\error;
 
 class RegisterationController extends Controller
 {
@@ -30,10 +33,76 @@ class RegisterationController extends Controller
             'bussiness_type',
             'email',
             'logo'
-        )->get();
+        )->where('active', '=', '1')
+            ->whereRaw('LOWER(bussiness_type) = ?', ['provider'])->get();
         return response()->json([
             'data' => $organization
-        ],200);
+        ], 200);
+    }
+
+    public function inActiveCompanies()
+    {
+        $organization = DB::table('registrations')->select(
+            'id',
+            'bussiness_fname',
+            'bussiness_lname',
+            'bussiness_owner',
+            'area_code',
+            'phone_number',
+            'street_address',
+            'city_name',
+            'province',
+            'bussiness_type',
+            'email',
+            'logo'
+        )->where('active', '=', '0')
+            ->whereRaw('LOWER(bussiness_type) = ?', ['provider'])->get();
+        return response()->json([
+            'data' => $organization
+        ], 200);
+    }
+
+    public function registerClientOrganization()
+    {
+        $organization = DB::table('registrations')->select(
+            'id',
+            'bussiness_fname',
+            'bussiness_lname',
+            'bussiness_owner',
+            'area_code',
+            'phone_number',
+            'street_address',
+            'city_name',
+            'province',
+            'bussiness_type',
+            'email',
+            'logo'
+        )->where('active', '=', '1')
+            ->whereRaw('LOWER(bussiness_type) = ?', ['taker'])->get();
+        return response()->json([
+            'data' => $organization
+        ], 200);
+    }
+    public function unRegisterClientOrganization()
+    {
+        $organization = DB::table('registrations')->select(
+            'id',
+            'bussiness_fname',
+            'bussiness_lname',
+            'bussiness_owner',
+            'area_code',
+            'phone_number',
+            'street_address',
+            'city_name',
+            'province',
+            'bussiness_type',
+            'email',
+            'logo'
+        )->where('active', '=', '0')
+            ->whereRaw('LOWER(bussiness_type) = ?', ['taker'])->get();
+        return response()->json([
+            'data' => $organization
+        ], 200);
     }
 
     /**
@@ -50,74 +119,125 @@ class RegisterationController extends Controller
     public function store(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'bussiness_fname' => 'required|string',
-            'bussiness_lname' => 'required|string',
             'bussiness_owner' => 'required|string',
-            'area_code' => 'required|string',
-            'phone_number' => 'required|string',
-            'street_adress' => 'required|string',
-            'city_name' => 'required|string',
-            'provice' => 'required|string',
             'bussiness_type' => 'required|string',
             'password' => 'required|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'email' => 'required|email'
+            'conform_password' => 'required|same:password',
+            'email' => 'required|email|unique:registrations,email'
         ]);
+
         if ($validate->fails()) {
             return response()->json([
                 'errors' => $validate->errors()
             ], 422);
         }
 
+        $newUser = new registeration();
+        $newUser->fill($request->only([
+            'bussiness_owner',
+            'bussiness_type',
+            'password',
+            'email'
+        ]));
+        $newUser->bussiness_fname = '';
+        $newUser->bussiness_lname = '';
+        $newUser->area_code = '';
+        $newUser->phone_number = '';
+        $newUser->street_address = '';
+        $newUser->city_name = '';
+        $newUser->province = '';
+        $newUser->save();
 
-        $User = registeration::where('email', $request->input('email'))->first();
-        if ($User) {
-            return response()->json([
-                'error' => 'This user already Exists'
-            ]);
-        } else {
-            $newUser = new registeration();
-            $newUser->bussiness_fname = $request->input('bussiness_fname');
-            $newUser->bussiness_lname = $request->input('bussiness_lname');
-            $newUser->bussiness_owner = $request->input('bussiness_owner');
-            $newUser->phone_number = $request->input('phone_number');
-            $newUser->area_code = $request->input('area_code');
-            $newUser->street_address = $request->input('street_adress');
-            $newUser->city_name = $request->input('city_name');
-            $newUser->province = $request->input('provice');
-            $newUser->bussiness_type = $request->input('bussiness_type');
-            $newUser->password = Hash::make($request->input('password'));
-            if ($request->hasFile('logo')) {
-                $newPicture = $request->file('logo');
-                $fileName = time() . '.' . $newPicture->getClientOriginalExtension();
-                $newPicture->move(public_path('images'), $fileName);
-                $imageUrl = asset('images/' . $fileName);
-                $newUser->logo = $imageUrl;
-            }
-            $newUser->email = $request->input('email');
-            $newUser->save();
-            Mail::to($request->input('email'))->send(new welcomeMail($request->input('bussiness_owner')));
-            return response()->json([
-                'message' => 'Your applicaiton submitted, wait for approval'
-            ]);
-        }
+        Mail::to($request->input('email'))->send(new welcomeMail($request->input('bussiness_owner')));
+
+        return response()->json([
+            'message' => 'Your application has been submitted. Please wait for approval.'
+        ]);
     }
+
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function activeOrganizationsMethod(Request $request)
     {
-        //
+        $validate = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => $validate->errors()
+            ], 401);
+        }
+        $organization = registeration::where('id', $request->input('id'))->first();
+        if ($organization) {
+            $organization->active = true;
+            $organization->save();
+            return response()->json([
+                'message' => 'Status Updated'
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Not Found'
+            ], 401);
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function inActiveOrganizationsMethod(Request $request)
     {
-        //
+        $validate = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => $validate->errors()
+            ], 401);
+        }
+        $organization = registeration::where('id', $request->input('id'))->first();
+        if ($organization) {
+            $organization->active = false;
+            $organization->save();
+            return response()->json([
+                'message' => 'Status Updated'
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Not Found'
+            ], 401);
+        }
     }
+
+    public function newPassword(Request $request)
+    {
+
+        $validate = Validator::make($request->all(), [
+            'password' => 'required|',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'error' => $validate->errors()
+            ], 401);
+        }
+
+        $user = Auth::user();
+        if ($user) {
+            $user->password = Hash::make($request->input('password'));
+            $user->save();
+            return response()->json([
+                'message' => "Password updated successfully"
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'User not found'
+            ], 401);
+        }
+    }
+
 
     /**
      * Update the specified resource in storage.
