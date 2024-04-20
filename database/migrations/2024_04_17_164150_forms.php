@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->references('id')->on('registrations')->onUpdate('cascade')
             ->onDelete('cascade');
-            $table->string('form_content');
-            $table->string('Banner_image');
-            $table->string('portfolio');
+            $table->json('form_content')->default('{}');
+            $table->string('logo')->nullable();
+            $table->string('Banner_image')->nullable();
+            $table->text('portfolio')->nullable();
             $table->timestamps();
         });
     }

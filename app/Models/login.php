@@ -17,8 +17,4 @@ class login extends Model
         'email',
         'password'
     ];
-    // public function tokens()
-    // {
-    //     return $this->hasMany(\Laravel\Sanctum\PersonalAccessToken::class, 'tokenable_id');
-    // }
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{RegisterationController, loginController};
+use App\Http\Controllers\{RegisterationController, loginController, formAndPortfolioController};
 
 Route::post('/registeration', [RegisterationController::class, 'store']);
 Route::post('/login', [loginController::class, 'store']);
@@ -12,6 +12,13 @@ Route::post('/forgetPassword', [loginController::class, 'passwordReset']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
+
+
+    Route::post('/makePortfolio',[formAndPortfolioController::class,'storePortfolio']);
+    Route::get('/getPortfolio',[formAndPortfolioController::class,'getPortfolio']);
+    Route::post('/makeForm',[formAndPortfolioController::class,'storeForm']);
+    Route::get('/getForm',[formAndPortfolioController::class,'getForm']);
+
 
     Route::get('/logout', [loginController::class, 'logout']);
 
