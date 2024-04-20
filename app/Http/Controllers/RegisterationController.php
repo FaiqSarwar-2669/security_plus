@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 
-use function Laravel\Prompts\error;
+
 
 class RegisterationController extends Controller
 {
@@ -212,6 +212,7 @@ class RegisterationController extends Controller
 
     public function newPassword(Request $request)
     {
+        $requestUser = Auth::user();
 
         $validate = Validator::make($request->all(), [
             'password' => 'required|',
@@ -223,8 +224,8 @@ class RegisterationController extends Controller
                 'error' => $validate->errors()
             ], 401);
         }
-
-        $user = Auth::user();
+        
+        $user = registeration::find($requestUser->id);
         if ($user) {
             $user->password = Hash::make($request->input('password'));
             $user->save();
