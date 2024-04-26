@@ -9,22 +9,23 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class resetPasswordMail extends Mailable
+class bannedCompany extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public $password;
-    public $Company;
+    public $company;
+    public $fname;
+    public $lname;
 
-    public function __construct(string $fname, string $password)
+    public function __construct(string $company,string $fname,string $lname)
     {
-        $this->Company = $fname;
-        $this->password = $password;
+        $this->company = $company;
+        $this->fname = $fname;
+        $this->lname = $lname;
     }
-
 
     /**
      * Get the message envelope.
@@ -32,7 +33,7 @@ class resetPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reset Password Mail',
+            subject: 'Organization Banned Notification',
         );
     }
 
@@ -42,10 +43,11 @@ class resetPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'resetPassword',
+            view: 'emails.bannedCompany',
             with: [
-                'Company' => $this->Company,
-                'password' => $this->password,
+                'Company' => $this->company,
+                'fname' => $this->fname,
+                'lname' => $this->lname,
             ]
         );
     }

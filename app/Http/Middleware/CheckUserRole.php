@@ -19,7 +19,7 @@ class CheckUserRole
         $user = Auth::user();
         if ($user->bussiness_type !== $role) {
             return response()->json([
-                'message' => 'Access forbidden: You do not have the required role.'
+                'error' => 'Access forbidden: You do not have the required role.'
             ], 403);
         }
         return $next($request);

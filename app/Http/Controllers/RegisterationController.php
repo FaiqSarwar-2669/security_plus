@@ -7,6 +7,9 @@ use App\Models\registeration;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\welcomeMail;
+use App\Mail\verifiedComapny;
+use App\Mail\bannedCompany;
+use App\Mail\reminderFillForm;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
@@ -31,8 +34,7 @@ class RegisterationController extends Controller
             'city_name',
             'province',
             'bussiness_type',
-            'email',
-            'logo'
+            'email'
         )->where('active', '=', '1')
             ->whereRaw('LOWER(bussiness_type) = ?', ['provider'])->get();
         return response()->json([
@@ -53,8 +55,7 @@ class RegisterationController extends Controller
             'city_name',
             'province',
             'bussiness_type',
-            'email',
-            'logo'
+            'email'
         )->where('active', '=', '0')
             ->whereRaw('LOWER(bussiness_type) = ?', ['provider'])->get();
         return response()->json([
@@ -75,8 +76,7 @@ class RegisterationController extends Controller
             'city_name',
             'province',
             'bussiness_type',
-            'email',
-            'logo'
+            'email'
         )->where('active', '=', '1')
             ->whereRaw('LOWER(bussiness_type) = ?', ['taker'])->get();
         return response()->json([
@@ -96,8 +96,7 @@ class RegisterationController extends Controller
             'city_name',
             'province',
             'bussiness_type',
-            'email',
-            'logo'
+            'email'
         )->where('active', '=', '0')
             ->whereRaw('LOWER(bussiness_type) = ?', ['taker'])->get();
         return response()->json([
@@ -136,9 +135,9 @@ class RegisterationController extends Controller
         $newUser->fill($request->only([
             'bussiness_owner',
             'bussiness_type',
-            'password',
             'email'
         ]));
+        $newUser->password = bcrypt($request->input('password'));
         $newUser->bussiness_fname = '';
         $newUser->bussiness_lname = '';
         $newUser->area_code = '';
@@ -148,7 +147,7 @@ class RegisterationController extends Controller
         $newUser->province = '';
         $newUser->save();
 
-        Mail::to($request->input('email'))->send(new welcomeMail($request->input('bussiness_owner')));
+        Mail::to($request->input('email'))->queue(new welcomeMail($request->input('bussiness_owner')));
 
         return response()->json([
             'message' => 'Your application has been submitted. Please wait for approval.'
@@ -172,6 +171,7 @@ class RegisterationController extends Controller
         $organization = registeration::where('id', $request->input('id'))->first();
         if ($organization) {
             $organization->active = true;
+            Mail::to($organization->email)->queue(new verifiedComapny($organization->bussiness_owner,$organization->bussiness_fname,$organization->bussiness_lname));
             $organization->save();
             return response()->json([
                 'message' => 'Status Updated'
@@ -186,6 +186,7 @@ class RegisterationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+    // function for banned the organizations
     public function inActiveOrganizationsMethod(Request $request)
     {
         $validate = Validator::make($request->all(), [
@@ -199,6 +200,7 @@ class RegisterationController extends Controller
         $organization = registeration::where('id', $request->input('id'))->first();
         if ($organization) {
             $organization->active = false;
+            Mail::to($organization->email)->queue(new bannedCompany($organization->bussiness_owner,$organization->bussiness_fname,$organization->bussiness_lname));
             $organization->save();
             return response()->json([
                 'message' => 'Status Updated'
@@ -206,6 +208,32 @@ class RegisterationController extends Controller
         } else {
             return response()->json([
                 'message' => 'Not Found'
+            ], 401);
+        }
+    }
+
+    // function for banned the organizations
+    public function reminderOrganizationRegisteration(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+        if ($validate->fails()) {
+            return response()->json([
+                'error' => $validate->errors()
+            ], 401);
+        }
+        $organization = registeration::where('id', $request->input('id'))->first();
+        if ($organization) {
+            $organization->active = false;
+            Mail::to($organization->email)->queue(new reminderFillForm($organization->bussiness_owner));
+            $organization->save();
+            return response()->json([
+                'message' => 'Status Updated'
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'Not Found'
             ], 401);
         }
     }
@@ -235,7 +263,7 @@ class RegisterationController extends Controller
         } else {
             return response()->json([
                 'error' => 'User not found'
-            ], 401);
+            ], 404);
         }
     }
 
@@ -251,8 +279,29 @@ class RegisterationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function getOrganization(string $id)
     {
-        //
+        $organization = DB::table('registrations')->select(
+            'bussiness_fname',
+            'bussiness_lname',
+            'bussiness_owner',
+            'area_code',
+            'phone_number',
+            'street_address',
+            'city_name',
+            'province',
+            'bussiness_type',
+            'email'
+        )->where('id', '=', $id)->get();
+        if($organization){
+            return response()->json([
+                'data' => $organization
+            ], 200);
+        }else{
+            return response()->json([
+                'error' => 'No record found'
+            ], 404);
+        }
+        
     }
 }

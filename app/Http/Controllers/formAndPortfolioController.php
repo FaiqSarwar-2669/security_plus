@@ -51,6 +51,9 @@ class formAndPortfolioController extends Controller
             'form_content'
         )->where('user_id', '=', $user->id)->get();
         if ($data) {
+            foreach ($data as $item) {
+                $item->form_content = json_decode($item->form_content);
+            }
             return response()->json([
                 'data' => $data
             ], 200);
@@ -72,14 +75,25 @@ class formAndPortfolioController extends Controller
             return response()->json([
                 'error' => $validate->errors()
             ], 401);
-        } else {
-            $form = formAndPortfolio::where('user_id', $user->id)->first();
-            $form->form_content = json_encode(trim($request->input('form_content')));
-            $form->save();
+        }
+        $existing = formAndPortfolio::where('user_id', $user->id)->first();
+        if($existing){
+            $existing->form_content = $request->input('form_content');
+            $existing->save();
             return response()->json([
                 'message' => 'Update the form successfully'
             ], 200);
+        }else{
+            $newData = new formAndPortfolio();
+            $newData->form_content = $request->input('form_content');
+            $newData->user_id= $user->id;
+            $newData->save();
+            return response()->json([
+                'message' => 'Created the form successfully'
+            ], 200);
         }
+            
+        
     }
 
     /**
@@ -87,23 +101,28 @@ class formAndPortfolioController extends Controller
      */
     public function storePortfolio(Request $request)
     {
+        // return response()->json([
+        //     '1' => $request->logo,
+        //     '2' => $request->Banner_image,
+        //     '3' => $request->portfolio
+        // ]);
         $validate = Validator::make($request->all(), [
-            'portfolio' => 'required',
             'form_content' => 'nullable',
-            'logo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'Banner_image' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+            'logo' => 'required|image|mimes:jpeg,png,jpg',
+            'Banner_image' => 'required|image|mimes:jpeg,png,jpg',
+            'portfolio' => 'required'
         ]);
         if ($validate->fails()) {
             return response()->json([
                 'error' => $validate->errors()
-            ], 401);
+            ]);
         }
         $user = auth()->user();
 
         $existing = formAndPortfolio::where('user_id', $user->id)->first();
         if ($existing) {
             // method for update logo of the company
-            if ($request->file('logo')) {
+            if ($request->hasFile('logo')) {
                 $profileImage = $request->file('logo');
                 // Delete the old image if it exists
                 if ($existing->logo) {
@@ -119,7 +138,7 @@ class formAndPortfolioController extends Controller
                 $existing->logo = $imageUrl;
             }
             // method for update banner image of the company
-            if ($request->file('Banner_image')) {
+            if ($request->hasFile('Banner_image')) {
                 $profileImage = $request->file('Banner_image');
                 // Delete the old image if it exists
                 if ($existing->Banner_image) {

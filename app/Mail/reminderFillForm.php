@@ -9,22 +9,20 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class resetPasswordMail extends Mailable
+class reminderFillForm extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public $password;
-    public $Company;
 
-    public function __construct(string $fname, string $password)
+    public $company;
+
+    public function __construct(string $company)
     {
-        $this->Company = $fname;
-        $this->password = $password;
+        $this->company = $company;
     }
-
 
     /**
      * Get the message envelope.
@@ -32,7 +30,7 @@ class resetPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reset Password Mail',
+            subject: 'Reminder Missing Registeration Information',
         );
     }
 
@@ -42,10 +40,9 @@ class resetPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'resetPassword',
+            view: 'emails.reminderFillCompleteData',
             with: [
-                'Company' => $this->Company,
-                'password' => $this->password,
+                'Company' => $this->company
             ]
         );
     }

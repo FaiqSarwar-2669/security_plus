@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('forms_and_portfolio', function(Blueprint $table){
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('registrations')->onUpdate('cascade')
+            $table->foreignId('user_id')->nullable()->references('id')->on('registrations')->onUpdate('cascade')
             ->onDelete('cascade');
-            $table->json('form_content')->default('{}');
+            $table->text('form_content')->nullable();
             $table->string('logo')->nullable();
             $table->string('Banner_image')->nullable();
             $table->text('portfolio')->nullable();

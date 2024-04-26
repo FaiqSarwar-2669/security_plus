@@ -15,6 +15,7 @@ class login extends Model
 
     protected $fillable = [
         'email',
-        'password'
+        'password',
+        'active'
     ];
 }

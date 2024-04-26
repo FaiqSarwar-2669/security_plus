@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="part-2">
-            <h2>Hi {{ $fname }} {{ $lname }}</h2>
+            <h2>Hi {{ $Company }}</h2>
             <p class="content">We’re happy to see you among our users. We received a request to reset the password for your account.
                 <br>Your new password is: <span class="password">{{ $password }}</span>
                 <br>Log in with this password, then change your password as desired.

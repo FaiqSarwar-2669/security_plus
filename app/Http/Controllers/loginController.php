@@ -53,22 +53,28 @@ class loginController extends Controller
         $user = login::where('email', $request->email)->first();
 
         if ($user) {
-            if (Hash::check($request->password, $user->password)) {
-                $token = $user->createToken($request->email)->plainTextToken;
+            if ($user->active != '1') {
                 return response()->json([
-                    'message' => 'Login successful',
-                    'token' => $token,
-                    'role' => $user->bussiness_type
-                ], 200);
+                    'error' => 'Your application under process',
+                ],404);
             } else {
-                return response()->json([
-                    'message' => 'Incorrect password',
-                ], 401);
+                if ($user && Hash::check($request->password, $user->password)) {
+                    $token = $user->createToken($request->email)->plainTextToken;
+                    return response()->json([
+                        'message' => 'Login successful',
+                        'token' => $token,
+                        'role' => $user->bussiness_type
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'error' => 'Incorrect password',
+                    ], 404);
+                }
             }
         } else {
             return response()->json([
-                'message' => 'Invalid email address',
-            ], 401);
+                'error' => 'Invalid email address',
+            ], 404);
         }
     }
 
@@ -90,7 +96,7 @@ class loginController extends Controller
         if ($user) {
             $randomPassword = Str::random(10);
             $user->password = Hash::make($randomPassword);
-            Mail::to($user->email)->send(new resetPasswordMail($user->bussiness_fname, $user->bussiness_lname, $randomPassword));
+            Mail::to($user->email)->queue(new resetPasswordMail($user->bussiness_owner, $randomPassword));
             $user->save();
             return response()->json([
                 'message' => 'Your password has been reset. Please check your email for the new password.'

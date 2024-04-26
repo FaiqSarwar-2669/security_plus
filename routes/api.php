@@ -14,26 +14,33 @@ Route::post('/forgetPassword', [loginController::class, 'passwordReset']);
 Route::middleware('auth:sanctum')->group(function () {
 
 
-    Route::post('/makePortfolio',[formAndPortfolioController::class,'storePortfolio']);
-    Route::get('/getPortfolio',[formAndPortfolioController::class,'getPortfolio']);
-    Route::post('/makeForm',[formAndPortfolioController::class,'storeForm']);
-    Route::get('/getForm',[formAndPortfolioController::class,'getForm']);
+
 
 
     Route::get('/logout', [loginController::class, 'logout']);
 
     // Routes for Service Provider Companies
-    Route::middleware(['checkUserRole:Service Provider'])->group(function () {
+    Route::middleware(['checkUserRole:Provider'])->group(function () {
+
+        Route::post('/makePortfolio', [formAndPortfolioController::class, 'storePortfolio']);
+        Route::get('/getPortfolio', [formAndPortfolioController::class, 'getPortfolio']);
+        Route::post('/makeForm', [formAndPortfolioController::class, 'storeForm']);
+        Route::get('/getForm', [formAndPortfolioController::class, 'getForm']);
     });
 
     // Routes for Service Takers Client
-    Route::middleware(['checkUserRole:Service Taker'])->group(function () {
+    Route::middleware(['checkUserRole:Taker'])->group(function () {
     });
 
     // Routes for Admin
     Route::middleware(['checkUserRole:Admin'])->group(function () {
 
-        Route::post('/newPassword',[RegisterationController::class, 'newPassword']);
+        Route::post('/newPassword', [RegisterationController::class, 'newPassword']);
+
+        //for all organizations and companies
+        Route::post('/remindRegisteration', [RegisterationController::class, 'reminderOrganizationRegisteration']);
+        Route::get('/viewOganization/{id}', [RegisterationController::class, 'getOrganization']);
+
         //for register companies and organizations
         Route::get('/registerCompanies', [RegisterationController::class, 'index']);
         Route::get('/registerClientOrganization', [RegisterationController::class, 'registerClientOrganization']);
