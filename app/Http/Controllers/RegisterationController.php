@@ -171,7 +171,7 @@ class RegisterationController extends Controller
         $organization = registeration::where('id', $request->input('id'))->first();
         if ($organization) {
             $organization->active = true;
-            Mail::to($organization->email)->queue(new verifiedComapny($organization->bussiness_owner,$organization->bussiness_fname,$organization->bussiness_lname));
+            Mail::to($organization->email)->queue(new verifiedComapny($organization->bussiness_owner, $organization->bussiness_fname, $organization->bussiness_lname));
             $organization->save();
             return response()->json([
                 'message' => 'Status Updated'
@@ -200,7 +200,7 @@ class RegisterationController extends Controller
         $organization = registeration::where('id', $request->input('id'))->first();
         if ($organization) {
             $organization->active = false;
-            Mail::to($organization->email)->queue(new bannedCompany($organization->bussiness_owner,$organization->bussiness_fname,$organization->bussiness_lname));
+            Mail::to($organization->email)->queue(new bannedCompany($organization->bussiness_owner, $organization->bussiness_fname, $organization->bussiness_lname));
             $organization->save();
             return response()->json([
                 'message' => 'Status Updated'
@@ -252,7 +252,7 @@ class RegisterationController extends Controller
                 'error' => $validate->errors()
             ], 401);
         }
-        
+
         $user = registeration::find($requestUser->id);
         if ($user) {
             $user->password = Hash::make($request->input('password'));
@@ -293,15 +293,14 @@ class RegisterationController extends Controller
             'bussiness_type',
             'email'
         )->where('id', '=', $id)->get();
-        if($organization){
+        if ($organization) {
             return response()->json([
                 'data' => $organization
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'error' => 'No record found'
             ], 404);
         }
-        
     }
 }

@@ -101,15 +101,14 @@ class formAndPortfolioController extends Controller
      */
     public function storePortfolio(Request $request)
     {
-        // return response()->json([
-        //     '1' => $request->logo,
-        //     '2' => $request->Banner_image,
-        //     '3' => $request->portfolio
-        // ]);
+        return response()->json([
+            '1' => $request->all()
+        ]);
+        
         $validate = Validator::make($request->all(), [
             'form_content' => 'nullable',
-            'logo' => 'required|image|mimes:jpeg,png,jpg',
-            'Banner_image' => 'required|image|mimes:jpeg,png,jpg',
+            'logo' => 'required',
+            'Banner_image' => 'required',
             'portfolio' => 'required'
         ]);
         if ($validate->fails()) {
@@ -117,12 +116,13 @@ class formAndPortfolioController extends Controller
                 'error' => $validate->errors()
             ]);
         }
+        
         $user = auth()->user();
 
         $existing = formAndPortfolio::where('user_id', $user->id)->first();
         if ($existing) {
             // method for update logo of the company
-            if ($request->hasFile('logo')) {
+            if ($request->file('logo')) {
                 $profileImage = $request->file('logo');
                 // Delete the old image if it exists
                 if ($existing->logo) {
@@ -138,7 +138,7 @@ class formAndPortfolioController extends Controller
                 $existing->logo = $imageUrl;
             }
             // method for update banner image of the company
-            if ($request->hasFile('Banner_image')) {
+            if ($request->file('Banner_image')) {
                 $profileImage = $request->file('Banner_image');
                 // Delete the old image if it exists
                 if ($existing->Banner_image) {
