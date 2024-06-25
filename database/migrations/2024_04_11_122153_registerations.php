@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('city_name')->nullable();
             $table->string('province')->nullable();
             $table->string('bussiness_type');
+            $table->string('profile');
             $table->string('password');
             $table->string('email')->unique();
             $table->boolean('active')->default(false);

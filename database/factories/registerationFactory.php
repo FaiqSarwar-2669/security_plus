@@ -42,6 +42,7 @@ class registerationFactory extends Factory
             'city_name' => '',
             'province' => '',
             'bussiness_type' => 'Admin',
+            'profile' => '',
             'email' => 'code.faiq786@gmail.com',
             'password' => Hash::make('Faiq@786'),
             'active' => true,

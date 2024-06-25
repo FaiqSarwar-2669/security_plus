@@ -22,5 +22,6 @@ class registeration extends Model
         'bussiness_type',
         'password',
         'email',
+        'profile',
     ];
 }

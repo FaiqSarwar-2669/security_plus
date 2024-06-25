@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\formAndPortfolio;
+use App\Models\registeration;
 use Illuminate\Support\Facades\DB;
 
 class formAndPortfolioController extends Controller
@@ -100,11 +101,7 @@ class formAndPortfolioController extends Controller
      * Store a newly created resource in storage.
      */
     public function storePortfolio(Request $request)
-    {
-        return response()->json([
-            '1' => $request->all()
-        ]);
-        
+    {   
         $validate = Validator::make($request->all(), [
             'form_content' => 'nullable',
             'logo' => 'required',
@@ -132,7 +129,7 @@ class formAndPortfolioController extends Controller
                     }
                 }
 
-                $filename = time() . '.' . $profileImage->getClientOriginalExtension();
+                $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
                 $profileImage->move(public_path('images'), $filename);
                 $imageUrl = asset('images/' . $filename);
                 $existing->logo = $imageUrl;
@@ -148,7 +145,7 @@ class formAndPortfolioController extends Controller
                     }
                 }
 
-                $filename = time() . '.' . $profileImage->getClientOriginalExtension();
+                $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
                 $profileImage->move(public_path('images'), $filename);
                 $imageUrl = asset('images/' . $filename);
                 $existing->Banner_image = $imageUrl;
@@ -165,7 +162,7 @@ class formAndPortfolioController extends Controller
             if ($request->file('logo')) {
                 $profileImage = $request->file('logo');
 
-                $filename = time() . '.' . $profileImage->getClientOriginalExtension();
+                $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
                 $profileImage->move(public_path('images'), $filename);
                 $imageUrl = asset('images/' . $filename);
                 $data->logo = $imageUrl;
@@ -174,7 +171,7 @@ class formAndPortfolioController extends Controller
             if ($request->file('Banner_image')) {
                 $profileImage = $request->file('Banner_image');
 
-                $filename = time() . '.' . $profileImage->getClientOriginalExtension();
+                $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
                 $profileImage->move(public_path('images'), $filename);
                 $imageUrl = asset('images/' . $filename);
                 $data->Banner_image = $imageUrl;
@@ -188,35 +185,5 @@ class formAndPortfolioController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    
 }

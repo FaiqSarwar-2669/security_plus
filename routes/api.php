@@ -2,20 +2,24 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{RegisterationController, loginController, formAndPortfolioController};
+use App\Http\Controllers\{RegisterationController, GuardController, ReviewController, Organizations, loginController, formAndPortfolioController, ChatController};
 
 Route::post('/registeration', [RegisterationController::class, 'store']);
 Route::post('/login', [loginController::class, 'store']);
 Route::post('/forgetPassword', [loginController::class, 'passwordReset']);
 
+Route::get('/All-Portfolios', [Organizations::class, 'getAllPortfolios']);
+Route::get('/get-form/{id}', [Organizations::class, 'getSpecificForm']);
+Route::post('/jobAppication', [Organizations::class, 'uploadApplications']);
 
+Route::get('/viewApplications/{id}', [Organizations::class, 'viewJobApplication']);
+Route::get('/get-reviews/{id}', [ReviewController::class, 'getReviews']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
 
 
-
-
+    Route::post('/chat', [ChatController::class, 'store']);
 
     Route::get('/logout', [loginController::class, 'logout']);
 
@@ -26,10 +30,24 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/getPortfolio', [formAndPortfolioController::class, 'getPortfolio']);
         Route::post('/makeForm', [formAndPortfolioController::class, 'storeForm']);
         Route::get('/getForm', [formAndPortfolioController::class, 'getForm']);
+        Route::get('/getApplications', [Organizations::class, 'getJobApplications']);
+        Route::post('/activejobApplication', [Organizations::class, 'ActiveJobApplications']);
+        Route::post('/rejectjobApplication', [Organizations::class, 'RejectedJobApplications']);
+        Route::get('/get-provider', [RegisterationController::class, 'edit']);
+        Route::post('/update-provider', [RegisterationController::class, 'update']);
+        Route::post('/registerGuard', [GuardController::class, 'store']);
+        // Route::get('/viewApplications/{id}', [Organizations::class, 'viewJobApplication']);
+        
     });
 
     // Routes for Service Takers Client
     Route::middleware(['checkUserRole:Taker'])->group(function () {
+        Route::get('/get-Portfolios', [Organizations::class, 'getAllPortfolios']);
+        Route::get('/get-sidebar', [Organizations::class, 'getClientSidebar']);
+        Route::get('/get-client', [RegisterationController::class, 'edit']);
+        Route::post('/update-client', [RegisterationController::class, 'update']);
+        Route::post('/submit-review', [ReviewController::class, 'AddReview']);
+        Route::get('/get-review/{id}', [ReviewController::class, 'getReviews']);
     });
 
     // Routes for Admin

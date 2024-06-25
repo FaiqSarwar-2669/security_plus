@@ -145,6 +145,7 @@ class RegisterationController extends Controller
         $newUser->street_address = '';
         $newUser->city_name = '';
         $newUser->province = '';
+        $newUser->profile = '';
         $newUser->save();
 
         Mail::to($request->input('email'))->queue(new welcomeMail($request->input('bussiness_owner')));
@@ -271,9 +272,73 @@ class RegisterationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        //
+        $validate = Validator::make($request->all(), [
+            'bussiness_owner' => 'nullable|string',
+            'bussiness_fname' => 'nullable',
+            'bussiness_lname' => 'nullable',
+            'area_code' => 'nullable',
+            'phone_number' => 'nullable',
+            'street_address' => 'nullable',
+            'city_name' => 'nullable',
+            'province' => 'nullable',
+            'profile' => 'nullable',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'errors' => $validate->errors()
+            ], 422);
+        }
+
+        $existing = auth()->user();
+
+        $user = registeration::where('id', $existing->id)->first();
+        $user->bussiness_owner = $request->input('bussiness_owner');
+        $user->bussiness_fname = $request->input('bussiness_fname');
+        $user->bussiness_lname = $request->input('bussiness_lname');
+        $user->area_code = $request->input('area_code');
+        $user->phone_number = $request->input('phone_number');
+        $user->street_address = $request->input('street_address');
+        $user->city_name = $request->input('city_name');
+        $user->province = $request->input('province');
+
+        if ($request->file('profile')) {
+            $profileImage = $request->file('profile');
+            // Delete the old image if it exists
+            if ($existing->logo) {
+                $oldImagePath = public_path('images/' . basename($existing->logo));
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+            $profileImage->move(public_path('images'), $filename);
+            $imageUrl = asset('images/' . $filename);
+            $user->profile = $imageUrl;
+        }
+        $user->save();
+        return response()->json([
+            'message' => 'Updated Successfully'
+        ]);
+    }
+
+
+    public function edit()
+    {
+        $existing = auth()->user();
+        $user = registeration::where('id', $existing->id)->first();
+        if ($user) {
+            return response()->json([
+                'data' => $user
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'No record found !!'
+            ]);
+        }
     }
 
     /**
