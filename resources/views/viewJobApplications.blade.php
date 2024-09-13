@@ -92,7 +92,7 @@
     <h1>Security Plus</h1>
     <div class="header">
         <div class="header-part1">
-            <div>
+            <!-- <div>
                 <label>Application Id: #12</label><br>
             </div>
             <div>
@@ -100,7 +100,7 @@
             </div>
             <div>
                 <label>Organization Name: Rathore construnction</label><br>
-            </div>
+            </div> -->
         </div>
         <div class="header-part2">
             <!-- <img src="{{ $logo }}" alt="image"> -->

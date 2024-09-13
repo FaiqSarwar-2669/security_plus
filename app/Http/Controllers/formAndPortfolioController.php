@@ -78,30 +78,28 @@ class formAndPortfolioController extends Controller
             ], 401);
         }
         $existing = formAndPortfolio::where('user_id', $user->id)->first();
-        if($existing){
+        if ($existing) {
             $existing->form_content = $request->input('form_content');
             $existing->save();
             return response()->json([
                 'message' => 'Update the form successfully'
             ], 200);
-        }else{
+        } else {
             $newData = new formAndPortfolio();
             $newData->form_content = $request->input('form_content');
-            $newData->user_id= $user->id;
+            $newData->user_id = $user->id;
             $newData->save();
             return response()->json([
                 'message' => 'Created the form successfully'
             ], 200);
         }
-            
-        
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function storePortfolio(Request $request)
-    {   
+    {
         $validate = Validator::make($request->all(), [
             'form_content' => 'nullable',
             'logo' => 'required',
@@ -113,9 +111,9 @@ class formAndPortfolioController extends Controller
                 'error' => $validate->errors()
             ]);
         }
-        
-        $user = auth()->user();
 
+        $user = auth()->user();
+        $profileUser = registeration::where('id', $user->id)->first();
         $existing = formAndPortfolio::where('user_id', $user->id)->first();
         if ($existing) {
             // method for update logo of the company
@@ -133,6 +131,7 @@ class formAndPortfolioController extends Controller
                 $profileImage->move(public_path('images'), $filename);
                 $imageUrl = asset('images/' . $filename);
                 $existing->logo = $imageUrl;
+                $profileUser->profile = $imageUrl;
             }
             // method for update banner image of the company
             if ($request->file('Banner_image')) {
@@ -152,6 +151,7 @@ class formAndPortfolioController extends Controller
             }
             $existing->portfolio = trim($request->input('portfolio'));
             $existing->save();
+            $profileUser->save();
             return response()->json([
                 'message' => 'Update the company Portfolio'
             ], 200);
@@ -166,6 +166,7 @@ class formAndPortfolioController extends Controller
                 $profileImage->move(public_path('images'), $filename);
                 $imageUrl = asset('images/' . $filename);
                 $data->logo = $imageUrl;
+                $profileUser->profile = $imageUrl;
             }
             //method for banner image of the company
             if ($request->file('Banner_image')) {
@@ -179,11 +180,10 @@ class formAndPortfolioController extends Controller
 
             $data->portfolio = trim($request->input('portfolio'));
             $data->save();
+            $profileUser->save();
             return response()->json([
                 'message' => 'Upload the company Portfolio'
             ], 200);
         }
     }
-
-    
 }

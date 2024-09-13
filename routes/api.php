@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{RegisterationController, GuardController, ReviewController, Organizations, loginController, formAndPortfolioController, ChatController};
+use App\Http\Controllers\{RegisterationController, GuardController, ReviewController, Organizations, loginController, formAndPortfolioController, MessageController};
 
 Route::post('/registeration', [RegisterationController::class, 'store']);
 Route::post('/login', [loginController::class, 'store']);
@@ -16,10 +16,13 @@ Route::get('/viewApplications/{id}', [Organizations::class, 'viewJobApplication'
 Route::get('/get-reviews/{id}', [ReviewController::class, 'getReviews']);
 
 
+
+
 Route::middleware('auth:sanctum')->group(function () {
 
-
-    Route::post('/chat', [ChatController::class, 'store']);
+    Route::post('/messages', [MessageController::class, 'store']);
+    Route::get('/chatmembers', [MessageController::class, 'index']);
+    Route::get('/getmessages/{id}', [MessageController::class, 'getMessage']);
 
     Route::get('/logout', [loginController::class, 'logout']);
 
@@ -36,7 +39,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/get-provider', [RegisterationController::class, 'edit']);
         Route::post('/update-provider', [RegisterationController::class, 'update']);
         Route::post('/registerGuard', [GuardController::class, 'store']);
-        // Route::get('/viewApplications/{id}', [Organizations::class, 'viewJobApplication']);
+        Route::get('/viewApp/{id}', [Organizations::class, 'viewJob']);
+
+        
         
     });
 
@@ -48,6 +53,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/update-client', [RegisterationController::class, 'update']);
         Route::post('/submit-review', [ReviewController::class, 'AddReview']);
         Route::get('/get-review/{id}', [ReviewController::class, 'getReviews']);
+
+        Route::post('/makeMember', [MessageController::class, 'create']);
     });
 
     // Routes for Admin

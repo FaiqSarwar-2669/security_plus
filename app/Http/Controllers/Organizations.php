@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\formAndPortfolio;
 use App\Models\registeration;
 use App\Models\JobApplication;
+use App\Models\review;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\PDF;
@@ -15,13 +16,32 @@ class Organizations extends Controller
 {
     public function getAllPortfolios()
     {
+        $rating = [];
         $portfolios = DB::table('registrations')
             ->join('forms_and_portfolio', 'registrations.id', '=', 'forms_and_portfolio.user_id')
             ->select('registrations.id', 'registrations.bussiness_owner', 'forms_and_portfolio.logo', 'forms_and_portfolio.Banner_image', 'forms_and_portfolio.portfolio')
             ->get();
-
+        foreach ($portfolios as $item) {
+            $sum = 0;
+            $total = 0;
+            $reviews = review::where('user_id', $item->id)->get();
+            foreach ($reviews as $review) {
+                $sum = $sum + $review->rating;
+                $total = $total + 5;
+            }
+            $result = ($sum / $total) * 100;
+            $result = $result / 20;
+            $rating[] = [
+                'id' => $item->id,
+                'bussiness_owner' => $item->bussiness_owner,
+                'logo' => $item->logo,
+                'Banner_image' => $item->Banner_image,
+                'portfolio' => $item->portfolio,
+                'rating' => $result
+            ];
+        }
         return response()->json([
-            'data' => $portfolios
+            'data' => $rating,
         ], 200);
     }
 
@@ -144,17 +164,28 @@ class Organizations extends Controller
         $pdf = PDF::loadView('viewJobApplications', ['data' => $data[0]->Form, 'logo' => $logo]);
         return $pdf->download($id . '.pdf');
     }
-    // public function viewJobApplication(String $id)
-    // {
-    //     return view('viewJobApplications');
-    // }
+
+    public function viewJob(String $id)
+    {
+
+        $data = DB::table('job_applications')->select(
+            'Form'
+        )->where('id', '=', $id)->get();
+        foreach ($data as $item) {
+            $item->Form = json_decode($item->Form);
+        }
+        return response()->json([
+            'data' => $data
+        ]);
+    }
 
 
-    public function getClientSidebar(){
+    public function getClientSidebar()
+    {
         $user = auth()->user();
         return response()->json([
             'pic' => $user->profile,
             'name' => $user->bussiness_owner
-        ],200);
+        ], 200);
     }
 }

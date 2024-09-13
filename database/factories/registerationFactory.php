@@ -46,6 +46,10 @@ class registerationFactory extends Factory
             'email' => 'code.faiq786@gmail.com',
             'password' => Hash::make('Faiq@786'),
             'active' => true,
+            'cnic' => '',
+            'front' => '',
+            'back' => '',
+            'certificate' => '',
         ];
     }
 }

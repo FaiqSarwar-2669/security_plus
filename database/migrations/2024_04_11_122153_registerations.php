@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('bussiness_fname')->nullable();
             $table->string('bussiness_lname')->nullable();
             $table->string('bussiness_owner');
+            $table->string('cnic');
             $table->string('area_code')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('street_address')->nullable();
@@ -23,6 +24,9 @@ return new class extends Migration
             $table->string('province')->nullable();
             $table->string('bussiness_type');
             $table->string('profile');
+            $table->string('front');
+            $table->string('back');
+            $table->string('certificate');
             $table->string('password');
             $table->string('email')->unique();
             $table->boolean('active')->default(false);

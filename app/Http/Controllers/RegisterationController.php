@@ -55,7 +55,11 @@ class RegisterationController extends Controller
             'city_name',
             'province',
             'bussiness_type',
-            'email'
+            'email',
+            'cnic',
+            'front',
+            'back',
+            'certificate'
         )->where('active', '=', '0')
             ->whereRaw('LOWER(bussiness_type) = ?', ['provider'])->get();
         return response()->json([
@@ -96,7 +100,11 @@ class RegisterationController extends Controller
             'city_name',
             'province',
             'bussiness_type',
-            'email'
+            'email',
+            'cnic',
+            'front',
+            'back',
+            'certificate'
         )->where('active', '=', '0')
             ->whereRaw('LOWER(bussiness_type) = ?', ['taker'])->get();
         return response()->json([
@@ -145,13 +153,17 @@ class RegisterationController extends Controller
         $newUser->street_address = '';
         $newUser->city_name = '';
         $newUser->province = '';
-        $newUser->profile = '';
+        $newUser->cnic = '';
+        $newUser->front = '';
+        $newUser->back = '';
+        $newUser->certificate = '';
+        $newUser->profile = asset('assets/images/default.png');;
         $newUser->save();
 
         Mail::to($request->input('email'))->queue(new welcomeMail($request->input('bussiness_owner')));
 
         return response()->json([
-            'message' => 'Your application has been submitted. Please wait for approval.'
+            'message' => 'Your application has been submitted. Please login to verity identity.'
         ]);
     }
 
@@ -274,6 +286,8 @@ class RegisterationController extends Controller
      */
     public function update(Request $request)
     {
+
+
         $validate = Validator::make($request->all(), [
             'bussiness_owner' => 'nullable|string',
             'bussiness_fname' => 'nullable',
@@ -284,6 +298,10 @@ class RegisterationController extends Controller
             'city_name' => 'nullable',
             'province' => 'nullable',
             'profile' => 'nullable',
+            'cnic' => 'nullable',
+            'front' => 'nullable',
+            'back' => 'nullable',
+            'certificate' => 'nullable',
         ]);
 
         if ($validate->fails()) {
@@ -293,7 +311,6 @@ class RegisterationController extends Controller
         }
 
         $existing = auth()->user();
-
         $user = registeration::where('id', $existing->id)->first();
         $user->bussiness_owner = $request->input('bussiness_owner');
         $user->bussiness_fname = $request->input('bussiness_fname');
@@ -303,6 +320,7 @@ class RegisterationController extends Controller
         $user->street_address = $request->input('street_address');
         $user->city_name = $request->input('city_name');
         $user->province = $request->input('province');
+        $user->cnic = $request->input('cnic');
 
         if ($request->file('profile')) {
             $profileImage = $request->file('profile');
@@ -318,6 +336,54 @@ class RegisterationController extends Controller
             $profileImage->move(public_path('images'), $filename);
             $imageUrl = asset('images/' . $filename);
             $user->profile = $imageUrl;
+        }
+
+        if ($request->file('front')) {
+            $profileImage = $request->file('front');
+            // Delete the old image if it exists
+            if ($existing->logo) {
+                $oldImagePath = public_path('images/' . basename($existing->logo));
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+            $profileImage->move(public_path('images'), $filename);
+            $imageUrl = asset('images/' . $filename);
+            $user->front = $imageUrl;
+        }
+
+        if ($request->file('back')) {
+            $profileImage = $request->file('back');
+            // Delete the old image if it exists
+            if ($existing->logo) {
+                $oldImagePath = public_path('images/' . basename($existing->logo));
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+            $profileImage->move(public_path('images'), $filename);
+            $imageUrl = asset('images/' . $filename);
+            $user->back = $imageUrl;
+        }
+
+        if ($request->file('certificate')) {
+            $profileImage = $request->file('certificate');
+            // Delete the old image if it exists
+            if ($existing->logo) {
+                $oldImagePath = public_path('images/' . basename($existing->logo));
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+            $profileImage->move(public_path('images'), $filename);
+            $imageUrl = asset('images/' . $filename);
+            $user->certificate = $imageUrl;
         }
         $user->save();
         return response()->json([
@@ -347,6 +413,7 @@ class RegisterationController extends Controller
     public function getOrganization(string $id)
     {
         $organization = DB::table('registrations')->select(
+            'id',
             'bussiness_fname',
             'bussiness_lname',
             'bussiness_owner',
@@ -356,7 +423,11 @@ class RegisterationController extends Controller
             'city_name',
             'province',
             'bussiness_type',
-            'email'
+            'email',
+            'cnic',
+            'front',
+            'back',
+            'certificate'
         )->where('id', '=', $id)->get();
         if ($organization) {
             return response()->json([

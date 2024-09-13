@@ -53,23 +53,19 @@ class loginController extends Controller
         $user = login::where('email', $request->email)->first();
 
         if ($user) {
-            if ($user->active != '1') {
+            if ($user && Hash::check($request->password, $user->password)) {
+                $token = $user->createToken($request->email)->plainTextToken;
                 return response()->json([
-                    'error' => 'Your application under process',
-                ],404);
+                    'message' => 'Login successful',
+                    'token' => $token,
+                    'role' => $user->bussiness_type,
+                    'activation' => $user->active,
+                    'userLoged' => $user->id
+                ], 200);
             } else {
-                if ($user && Hash::check($request->password, $user->password)) {
-                    $token = $user->createToken($request->email)->plainTextToken;
-                    return response()->json([
-                        'message' => 'Login successful',
-                        'token' => $token,
-                        'role' => $user->bussiness_type
-                    ], 200);
-                } else {
-                    return response()->json([
-                        'error' => 'Incorrect password',
-                    ], 404);
-                }
+                return response()->json([
+                    'error' => 'Incorrect password',
+                ], 404);
             }
         } else {
             return response()->json([
