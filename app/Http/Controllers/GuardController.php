@@ -5,28 +5,36 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Guards;
+use App\Models\registeration;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ContractModel;
 
 class GuardController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function deactiveGuards(String $id)
     {
-        //
+        $existing = ContractModel::where('Guards_id', $id)->first();
+        $guard = Guards::where('id', $id)->first();
+        $guard->Status = '0';
+        $existing->delete();
+        $guard->save();
+        return response()->json([
+            'message' => 'Successfully Deactivated'
+        ], 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+
+    public function firedGuard(String $id)
     {
-        //
+        $guard = Guards::where('id', $id)->first();
+        $guard->delete();
+        return response()->json([
+            'message' => 'Successfully Fired'
+        ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -78,7 +86,7 @@ class GuardController extends Controller
             $newGuard->Postal_Code = $request->input('Postal_Code');
             $newGuard->Religion = $request->input('Religion');
             $newGuard->Category = $request->input('Category');
-            $newGuard->Status = 'active';
+            $newGuard->Status = '0';
             $newGuard->save();
             return response()->json([
                 'message' => 'Register Guard Successfuly'
@@ -86,35 +94,136 @@ class GuardController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+
+    public function getAllGuards()
     {
-        //
+        $user = Auth::user();
+        $guards = Guards::where('user_id', $user->id)
+            ->where('Status', '0')
+            ->get();
+        return response()->json([
+            'data' => $guards
+        ], 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+
+    public function getDataForGivingGuads(Request $request)
     {
-        //
+        $comapny = registeration::where('email', $request->email)
+            ->where('bussiness_type', 'Taker')->first();
+        if ($comapny) {
+            return response()->json([
+                'data' => $comapny
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'No Company Found'
+            ], 200);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+
+    public function contract(Request $request)
     {
-        //
+        $auth = Auth::user();
+        $user = registeration::where('id', $auth->id)->first();
+        $guards = $request->Users;
+        foreach ($guards as $guard) {
+            $existing = Guards::where('id', $guard)->first();
+            if ($existing) {
+                $contracts = new ContractModel();
+                $contracts->Guards_id = $existing->id;
+                $contracts->CompanyId = $request->company;
+                $contracts->CompanyName = $request->name;
+                $contracts->OrganizationId = $user->id;
+                $contracts->OrganizationName = $user->bussiness_owner;
+                $contracts->Name = $existing->First_Name . ' ' . $existing->Last_Name;
+                $contracts->Email = $existing->Email;
+                $contracts->Mobile_Number = $existing->Mobile_Number;
+                $contracts->Address = $existing->Address;
+                $contracts->City = $existing->City;
+                $existing->Status = $request->company;
+                $existing->save();
+                $contracts->save();
+            }
+        }
+        return response()->json([
+            'message' => 'Guards assigned successfully'
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+
+    public function getcontracts()
     {
-        //
+        $user = Auth::user();
+        $contracts = ContractModel::where('OrganizationId', $user->id)->get();
+        foreach ($contracts as $contract) {
+            // Check if the organization already exists in the array
+            if (!isset($groupedContracts[$contract->CompanyName])) {
+                $groupedContracts[$contract->CompanyName] = [
+                    'CompanyId' => $contract->CompanyId,
+                    'CompanyName' => $contract->CompanyName,
+                    'Guards' => []
+                ];
+            }
+
+            $groupedContracts[$contract->CompanyName]['Guards'][] = [
+                'Guards_id' => $contract->Guards_id,
+                'Name' => $contract->Name,
+                'Email' => $contract->Email,
+                'Mobile_Number' => $contract->Mobile_Number,
+                'Address' => $contract->Address,
+                'City' => $contract->City
+            ];
+        }
+
+        return response()->json([
+            'data' => array_values($groupedContracts)
+        ], 200);
+    }
+
+    public function getClientContracts()
+    {
+        $user = Auth::user();
+        $contracts = ContractModel::where('CompanyId', $user->id)->get();
+        $groupedContracts = [];
+
+        foreach ($contracts as $contract) {
+            if (!isset($groupedContracts[$contract->OrganizationName])) {
+                $groupedContracts[$contract->OrganizationName] = [
+                    'OrganizationId' => $contract->OrganizationId,
+                    'OrganizationName' => $contract->OrganizationName,
+                    'Guards' => []
+                ];
+            }
+
+            $groupedContracts[$contract->OrganizationName]['Guards'][] = [
+                'Guards_id' => $contract->Guards_id,
+                'Name' => $contract->Name,
+                'Email' => $contract->Email,
+                'Mobile_Number' => $contract->Mobile_Number,
+                'Address' => $contract->Address,
+                'City' => $contract->City
+            ];
+        }
+
+        return response()->json([
+            'data' => array_values($groupedContracts)
+        ], 200);
+    }
+
+
+    public function view(String $id)
+    {
+        $guard = Guards::where('id', $id)->first();
+        if ($guard) {
+            return response()->json([
+                'data' => $guard
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'Not Found'
+            ]);
+        }
     }
 }
