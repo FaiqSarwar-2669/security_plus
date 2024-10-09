@@ -30,6 +30,8 @@ return new class extends Migration
             $table->string('Postal_Code');
             $table->string('Religion');
             $table->string('Category');
+            $table->text('Identity');
+            $table->string('Password');
             $table->string('Status');
             $table->timestamps();
         });

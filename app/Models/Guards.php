@@ -27,6 +27,8 @@ class Guards extends Model
         'Postal_Code',
         'Religion',
         'Category',
+        'Identity',
+        'Password',
         'Status',
     ];
 

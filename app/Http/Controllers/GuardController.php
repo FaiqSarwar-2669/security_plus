@@ -8,6 +8,9 @@ use App\Models\Guards;
 use App\Models\registeration;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ContractModel;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\GuardRejisteration;
+use Illuminate\Support\Str;
 
 class GuardController extends Controller
 {
@@ -37,6 +40,7 @@ class GuardController extends Controller
 
     public function store(Request $request)
     {
+        $Password = Str::random(10);
         $validator = Validator::make($request->all(), [
             'First_Name' => 'required',
             'Last_Name' => 'required',
@@ -53,6 +57,7 @@ class GuardController extends Controller
             'Postal_Code' => 'required',
             'Religion' => 'required',
             'Category' => 'required',
+            'identity' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -87,7 +92,16 @@ class GuardController extends Controller
             $newGuard->Religion = $request->input('Religion');
             $newGuard->Category = $request->input('Category');
             $newGuard->Status = '0';
+            $newGuard->Identity = $request->input('identity');
+            $newGuard->Password = $Password;
             $newGuard->save();
+            Mail::to($request->input('Email'))->queue(new GuardRejisteration(
+                $request->input('First_Name'),
+                $request->input('Last_Name'),
+                $Password,
+                $user->bussiness_owner,
+                $request->input('Email')
+            ));
             return response()->json([
                 'message' => 'Register Guard Successfuly'
             ], 200);
@@ -209,6 +223,28 @@ class GuardController extends Controller
 
         return response()->json([
             'data' => array_values($groupedContracts)
+        ], 200);
+    }
+
+    public function getGuardsForAttendance()
+    {
+        $guardsArray = []; 
+        $user = Auth::user();
+        $guards = ContractModel::where('CompanyId', $user->id)->get();
+        foreach ($guards as $guard) {
+            $guarddata = Guards::where('id', $guard->Guards_id)->first();
+            if($guarddata){
+                $guardsArray[] = [
+                    'id' => $guarddata->id,
+                    'name' => $guarddata->First_Name . ' ' . $guarddata->Last_Name,
+                    'identity' => $guarddata->Identity,
+                ];
+            }
+            
+        }
+
+        return response()->json([
+            'data' => $guardsArray
         ], 200);
     }
 

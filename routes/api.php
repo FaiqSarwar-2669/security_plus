@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{RegisterationController, GuardController, ReviewController,
      Organizations, loginController, formAndPortfolioController, MessageController,
-     DashboardController
+     DashboardController,AttendenceController
     };
 
 Route::post('/registeration', [RegisterationController::class, 'store']);
@@ -63,7 +63,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/submit-review', [ReviewController::class, 'AddReview']);
         Route::get('/get-review/{id}', [ReviewController::class, 'getReviews']);
         Route::get('/getContracts', [GuardController::class, 'getClientContracts']);
-
+        Route::get('/GuardsForAttendance', [GuardController::class, 'getGuardsForAttendance']);
+        Route::post('/markAttendence',[AttendenceController::class,'saveAttendence']);
+        Route::get('/getAttendence/{id}',[AttendenceController::class,'getAttendence']);
         Route::post('/makeMember', [MessageController::class, 'create']);
     });
 
