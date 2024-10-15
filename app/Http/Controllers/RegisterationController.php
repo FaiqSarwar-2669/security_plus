@@ -229,7 +229,8 @@ class RegisterationController extends Controller
     public function reminderOrganizationRegisteration(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'id' => 'required'
+            'id' => 'required',
+            'data' => 'required'
         ]);
         if ($validate->fails()) {
             return response()->json([
@@ -239,7 +240,7 @@ class RegisterationController extends Controller
         $organization = registeration::where('id', $request->input('id'))->first();
         if ($organization) {
             $organization->active = false;
-            Mail::to($organization->email)->queue(new reminderFillForm($organization->bussiness_owner));
+            Mail::to($organization->email)->queue(new reminderFillForm($organization->bussiness_owner, $request->input('data')));
             $organization->save();
             return response()->json([
                 'message' => 'Status Updated'
@@ -311,84 +312,91 @@ class RegisterationController extends Controller
         }
 
         $existing = auth()->user();
-        $user = registeration::where('id', $existing->id)->first();
-        $user->bussiness_owner = $request->input('bussiness_owner');
-        $user->bussiness_fname = $request->input('bussiness_fname');
-        $user->bussiness_lname = $request->input('bussiness_lname');
-        $user->area_code = $request->input('area_code');
-        $user->phone_number = $request->input('phone_number');
-        $user->street_address = $request->input('street_address');
-        $user->city_name = $request->input('city_name');
-        $user->province = $request->input('province');
-        $user->cnic = $request->input('cnic');
+        $check = registeration::where('cnic', $existing->id)->first();
+        if ($check) {
+            return response()->json([
+                'error' => 'Against this registeration company already registered'
+            ], 403);
+        } else {
+            $user = registeration::where('id', $existing->id)->first();
+            $user->bussiness_owner = $request->input('bussiness_owner');
+            $user->bussiness_fname = $request->input('bussiness_fname');
+            $user->bussiness_lname = $request->input('bussiness_lname');
+            $user->area_code = $request->input('area_code');
+            $user->phone_number = $request->input('phone_number');
+            $user->street_address = $request->input('street_address');
+            $user->city_name = $request->input('city_name');
+            $user->province = $request->input('province');
+            $user->cnic = $request->input('cnic');
 
-        if ($request->file('profile')) {
-            $profileImage = $request->file('profile');
-            // Delete the old image if it exists
-            if ($existing->logo) {
-                $oldImagePath = public_path('images/' . basename($existing->logo));
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
+            if ($request->file('profile')) {
+                $profileImage = $request->file('profile');
+                // Delete the old image if it exists
+                if ($existing->logo) {
+                    $oldImagePath = public_path('images/' . basename($existing->logo));
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
+
+                $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+                $profileImage->move(public_path('images'), $filename);
+                $imageUrl = asset('images/' . $filename);
+                $user->profile = $imageUrl;
             }
 
-            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
-            $profileImage->move(public_path('images'), $filename);
-            $imageUrl = asset('images/' . $filename);
-            $user->profile = $imageUrl;
-        }
-
-        if ($request->file('front')) {
-            $profileImage = $request->file('front');
-            // Delete the old image if it exists
-            if ($existing->logo) {
-                $oldImagePath = public_path('images/' . basename($existing->logo));
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
+            if ($request->file('front')) {
+                $profileImage = $request->file('front');
+                // Delete the old image if it exists
+                if ($existing->logo) {
+                    $oldImagePath = public_path('images/' . basename($existing->logo));
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
+
+                $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+                $profileImage->move(public_path('images'), $filename);
+                $imageUrl = asset('images/' . $filename);
+                $user->front = $imageUrl;
             }
 
-            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
-            $profileImage->move(public_path('images'), $filename);
-            $imageUrl = asset('images/' . $filename);
-            $user->front = $imageUrl;
-        }
-
-        if ($request->file('back')) {
-            $profileImage = $request->file('back');
-            // Delete the old image if it exists
-            if ($existing->logo) {
-                $oldImagePath = public_path('images/' . basename($existing->logo));
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
+            if ($request->file('back')) {
+                $profileImage = $request->file('back');
+                // Delete the old image if it exists
+                if ($existing->logo) {
+                    $oldImagePath = public_path('images/' . basename($existing->logo));
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
+
+                $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+                $profileImage->move(public_path('images'), $filename);
+                $imageUrl = asset('images/' . $filename);
+                $user->back = $imageUrl;
             }
 
-            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
-            $profileImage->move(public_path('images'), $filename);
-            $imageUrl = asset('images/' . $filename);
-            $user->back = $imageUrl;
-        }
-
-        if ($request->file('certificate')) {
-            $profileImage = $request->file('certificate');
-            // Delete the old image if it exists
-            if ($existing->logo) {
-                $oldImagePath = public_path('images/' . basename($existing->logo));
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
+            if ($request->file('certificate')) {
+                $profileImage = $request->file('certificate');
+                // Delete the old image if it exists
+                if ($existing->logo) {
+                    $oldImagePath = public_path('images/' . basename($existing->logo));
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
-            }
 
-            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
-            $profileImage->move(public_path('images'), $filename);
-            $imageUrl = asset('images/' . $filename);
-            $user->certificate = $imageUrl;
+                $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+                $profileImage->move(public_path('images'), $filename);
+                $imageUrl = asset('images/' . $filename);
+                $user->certificate = $imageUrl;
+            }
+            $user->save();
+            return response()->json([
+                'message' => 'Updated Successfully'
+            ]);
         }
-        $user->save();
-        return response()->json([
-            'message' => 'Updated Successfully'
-        ]);
     }
 
 

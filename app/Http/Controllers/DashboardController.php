@@ -32,8 +32,8 @@ class DashboardController extends Controller
             ->count('CompanyId');
         return response()->json([
             'total' => $totalGuards,
-            'duty' => $availableGuards,
-            'remaining' => $remainingGuards,
+            'duty' => $remainingGuards,
+            'remaining' => $availableGuards,
             'totalcontract' =>  $contractedComapiese
         ], 200);
     }

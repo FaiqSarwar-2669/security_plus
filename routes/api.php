@@ -14,6 +14,10 @@ Route::post('/forgetPassword', [loginController::class, 'passwordReset']);
 Route::get('/All-Portfolios', [Organizations::class, 'getAllPortfolios']);
 Route::get('/get-form/{id}', [Organizations::class, 'getSpecificForm']);
 Route::post('/jobAppication', [Organizations::class, 'uploadApplications']);
+Route::post('ApplicationImage',[Organizations::class, 'uploadImage']);
+
+Route::get('/respond', [GuardController::class, 'handleResponse']);
+
 
 Route::get('/viewApplications/{id}', [Organizations::class, 'viewJobApplication']);
 Route::get('/get-reviews/{id}', [ReviewController::class, 'getReviews']);

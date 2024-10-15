@@ -10,7 +10,10 @@ use App\Models\JobApplication;
 use App\Models\review;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AskingForApproval;
 use Barryvdh\DomPDF\Facade\PDF;
+use Illuminate\Support\Facades\Auth;
 
 class Organizations extends Controller
 {
@@ -78,6 +81,28 @@ class Organizations extends Controller
         ], 200);
     }
 
+
+    public function uploadImage(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'image' => 'required',
+        ]);
+        if ($validate->fails()) {
+            return response()->json([
+                'error' => $validate->errors()
+            ]);
+        }
+        if ($request->file('image')) {
+            $profileImage = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $profileImage->getClientOriginalExtension();
+            $profileImage->move(public_path('application'), $filename);
+            $imageUrl = asset('application/' . $filename);
+            return response()->json([
+                'data' => $imageUrl
+            ], 200);
+        }
+    }
+
     public function getJobApplications()
     {
         $user = auth()->user();
@@ -98,8 +123,10 @@ class Organizations extends Controller
             'data' => $application
         ], 200);
     }
+
     public function ActiveJobApplications(Request $request)
     {
+        $user = Auth::user();
         $validate = Validator::make($request->all(), [
             'id' => 'required',
         ]);
@@ -108,18 +135,37 @@ class Organizations extends Controller
                 'error' => $validate->errors()
             ]);
         }
+
         $application = JobApplication::where('id', $request->input('id'))->first();
         if (!$application) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Application not found'
             ], 404);
+        } else {
+            $email = null;
+            $formData = json_decode($application->Form, true);
+            foreach ($formData as $item) {
+                if (isset($item['type']) && $item['type'] === 'Input' && isset($item['Type']) && strtolower($item['Type']) === 'email') {
+                    $email = $item['data'];
+                    break;
+                }
+            }
+            if ($email) {
+                Mail::to($email)->queue(new AskingForApproval(
+                    $request->input('id'),
+                    $user->id
+                ));
+                return response()->json([
+                    'message' => 'Send Request Successfully',
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Email not found in the form data'
+                ], 404);
+            }
         }
-        $application->Status = 'active';
-        $application->save();
-        return response()->json([
-            'message' => 'This Application Activated'
-        ], 200);
     }
     public function RejectedJobApplications(Request $request)
     {

@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ContractModel;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\GuardRejisteration;
+use App\Models\JobApplication;
+
 use Illuminate\Support\Str;
 
 class GuardController extends Controller
@@ -228,19 +230,18 @@ class GuardController extends Controller
 
     public function getGuardsForAttendance()
     {
-        $guardsArray = []; 
+        $guardsArray = [];
         $user = Auth::user();
         $guards = ContractModel::where('CompanyId', $user->id)->get();
         foreach ($guards as $guard) {
             $guarddata = Guards::where('id', $guard->Guards_id)->first();
-            if($guarddata){
+            if ($guarddata) {
                 $guardsArray[] = [
                     'id' => $guarddata->id,
                     'name' => $guarddata->First_Name . ' ' . $guarddata->Last_Name,
                     'identity' => $guarddata->Identity,
                 ];
             }
-            
         }
 
         return response()->json([
@@ -261,5 +262,32 @@ class GuardController extends Controller
                 'error' => 'Not Found'
             ]);
         }
+    }
+
+
+    public function handleResponse(Request $request)
+    {
+
+        $applicationId = $request->query('application_id');
+        $organizationId = $request->query('organization_id');
+        $response = $request->query('response');
+
+        if (!$applicationId || !$organizationId || !in_array($response, ['interested', 'not_interested'])) {
+            return response()->json(['message' => 'Invalid response'], 400);
+        }
+
+        $application = JobApplication::where('id', $applicationId)->where('User_id', $organizationId)->first();
+        if ($application) {
+            if ($response == "interested") {
+                $application->Status = 'active';
+            } else if ($response == "not_interested") {
+                $application->Status = 'reject';
+            }
+            $application->save();
+            dd([
+                'message' => 'Response received successfully!',
+            ]);
+        }
+
     }
 }

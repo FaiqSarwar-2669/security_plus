@@ -9,21 +9,19 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class reminderFillForm extends Mailable
+class AskingForApproval extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-
-    public $company;
-    public $data;
-
-    public function __construct(string $company, string $data)
+    public $applicationId;
+    public $companyId;
+    public function __construct(string $applicationId, string $companyId)
     {
-        $this->company = $company;
-        $this->data = $data;
+        $this->applicationId = $applicationId;
+        $this->companyId = $companyId;
     }
 
     /**
@@ -32,7 +30,7 @@ class reminderFillForm extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reminder Missing Registeration Information',
+            subject: 'Asking For Approval',
         );
     }
 
@@ -42,10 +40,10 @@ class reminderFillForm extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.reminderFillCompleteData',
+            view: 'askingForApproval',
             with: [
-                'Company' => $this->company,
-                'data' => $this->data
+                'applicationId' => $this->applicationId,
+                'companyId' => $this->companyId
             ]
         );
     }

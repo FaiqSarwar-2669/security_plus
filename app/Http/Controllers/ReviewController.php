@@ -48,7 +48,8 @@ class ReviewController extends Controller
                 'id' => $item->id,
                 'review' => $item->review,
                 'rating' => $item->rating,
-                'image' => $existing->profile
+                'image' => $existing->profile,
+                'name' => $existing->bussiness_owner
             ];
         }
         return response()->json([

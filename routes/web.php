@@ -9,6 +9,6 @@ Route::get('/', function () {
 });
 
 Route::get('/welcomeMail',function(){
-    return view('guardWelcome');
+    return view('askingForApproval');
 });
 Route::get('/viewApplications/{id}', [Organizations::class, 'viewJobApplication']);
