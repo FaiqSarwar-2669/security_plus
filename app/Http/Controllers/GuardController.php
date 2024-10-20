@@ -42,8 +42,7 @@ class GuardController extends Controller
 
     public function store(Request $request)
     {
-        // $Password = Str::random(10);
-        $Password = "123";
+        $Password = Str::random(10);
         $validator = Validator::make($request->all(), [
             'First_Name' => 'required',
             'Last_Name' => 'required',
