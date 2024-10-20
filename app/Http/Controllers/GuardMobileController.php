@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Mail\resetPasswordMail;
+use App\Mail\guardsresetpassword;
 use App\Events\Alram;
 use Carbon\Carbon;
 use App\Models\Guards;
@@ -110,7 +110,7 @@ class GuardMobileController extends Controller
             $name = $user->First_Name . " " . $user->Last_Name;
             $randomPassword = Str::random(10);
             $user->Password = Hash::make($randomPassword);
-            Mail::to($user->email)->queue(new resetPasswordMail($name, $randomPassword));
+            Mail::to($user->Email)->queue(new guardsresetpassword($name, $randomPassword));
             $user->save();
             return response()->json([
                 'message' => 'Your password has been reset. Please check your email for the new password.'
