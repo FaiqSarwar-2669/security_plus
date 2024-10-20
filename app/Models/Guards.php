@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
 
 class Guards extends Model
 {
-    use HasFactory;
+    use HasFactory,HasApiTokens;
     protected $table = 'Guards';
 
     protected $fillable = [
@@ -26,10 +27,11 @@ class Guards extends Model
         'Hobbies',
         'Postal_Code',
         'Religion',
-        'Category',
+        'Salary',
         'Identity',
         'Password',
         'Status',
+        'profile_image'
     ];
 
     public function user()

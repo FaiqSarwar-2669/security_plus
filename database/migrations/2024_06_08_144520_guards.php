@@ -29,10 +29,11 @@ return new class extends Migration
             $table->string('Hobbies');
             $table->string('Postal_Code');
             $table->string('Religion');
-            $table->string('Category');
+            $table->string('Salary');
             $table->text('Identity');
             $table->string('Password');
             $table->string('Status');
+            $table->string('profile_image');
             $table->timestamps();
         });
     }

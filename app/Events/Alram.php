@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\Messagemodel;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,14 +10,19 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageEvent implements ShouldBroadcast
+class Alram implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
-    public function __construct(Messagemodel $message)
+    /**
+     * Create a new event instance.
+     */
+    public $data;
+    public $id;
+    public function __construct($message, $id)
     {
-        $this->message = $message;
+        $this->data = $message;
+        $this->id = $id;
     }
 
     /**
@@ -28,20 +32,26 @@ class MessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('chat.' . $this->message->receiver_id);
+        return new Channel('alram');
     }
-    // public function broadcastOn()
-    // {
-    //     return new Channel('chat');
-    // }
-
     public function broadcastAs()
     {
-        return 'message';
+        return 'alert-alram';
     }
 
     public function broadcastWith()
     {
-        return ['message' => $this->message];
+        return [
+            'message' => $this->getdata(),
+        ];
+    }
+
+    public function getdata()
+    {
+        $datareturn = [
+            'message' => $this->data,
+            'target' => $this->id
+        ];
+        return  $datareturn;
     }
 }

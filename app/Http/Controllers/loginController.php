@@ -86,7 +86,7 @@ class loginController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'error' => $validate->errors()
-            ]);
+            ],403);
         }
         $user = login::where('email', $request->email)->first();
         if ($user) {

@@ -42,7 +42,8 @@ class GuardController extends Controller
 
     public function store(Request $request)
     {
-        $Password = Str::random(10);
+        // $Password = Str::random(10);
+        $Password = "123";
         $validator = Validator::make($request->all(), [
             'First_Name' => 'required',
             'Last_Name' => 'required',
@@ -92,10 +93,11 @@ class GuardController extends Controller
             $newGuard->Hobbies = $request->input('Hobbies');
             $newGuard->Postal_Code = $request->input('Postal_Code');
             $newGuard->Religion = $request->input('Religion');
-            $newGuard->Category = $request->input('Category');
+            $newGuard->Salary = $request->input('Category');
             $newGuard->Status = '0';
             $newGuard->Identity = $request->input('identity');
-            $newGuard->Password = $Password;
+            $newGuard->profile_image = asset('assets/images/default.png');
+            $newGuard->Password = bcrypt($Password);
             $newGuard->save();
             Mail::to($request->input('Email'))->queue(new GuardRejisteration(
                 $request->input('First_Name'),
@@ -288,6 +290,5 @@ class GuardController extends Controller
                 'message' => 'Response received successfully!',
             ]);
         }
-
     }
 }

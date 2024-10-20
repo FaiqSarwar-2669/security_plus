@@ -2,19 +2,31 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{RegisterationController, GuardController, ReviewController,
-     Organizations, loginController, formAndPortfolioController, MessageController,
-     DashboardController,AttendenceController
-    };
+use App\Http\Controllers\{
+    RegisterationController,
+    GuardController,
+    ReviewController,
+    Organizations,
+    loginController,
+    formAndPortfolioController,
+    MessageController,
+    DashboardController,
+    AttendenceController,
+    GuardMobileController
+};
 
 Route::post('/registeration', [RegisterationController::class, 'store']);
 Route::post('/login', [loginController::class, 'store']);
+
+Route::post('/guardslogin', [GuardMobileController::class, 'loginGuard']);
+Route::post('/guards-forget-password', [GuardMobileController::class, 'passwordReset']);
+
 Route::post('/forgetPassword', [loginController::class, 'passwordReset']);
 
 Route::get('/All-Portfolios', [Organizations::class, 'getAllPortfolios']);
 Route::get('/get-form/{id}', [Organizations::class, 'getSpecificForm']);
 Route::post('/jobAppication', [Organizations::class, 'uploadApplications']);
-Route::post('ApplicationImage',[Organizations::class, 'uploadImage']);
+Route::post('ApplicationImage', [Organizations::class, 'uploadImage']);
 
 Route::get('/respond', [GuardController::class, 'handleResponse']);
 
@@ -68,8 +80,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/get-review/{id}', [ReviewController::class, 'getReviews']);
         Route::get('/getContracts', [GuardController::class, 'getClientContracts']);
         Route::get('/GuardsForAttendance', [GuardController::class, 'getGuardsForAttendance']);
-        Route::post('/markAttendence',[AttendenceController::class,'saveAttendence']);
-        Route::get('/getAttendence/{id}',[AttendenceController::class,'getAttendence']);
+        Route::post('/markAttendence', [AttendenceController::class, 'saveAttendence']);
+        Route::get('/getAttendence/{id}', [AttendenceController::class, 'getAttendence']);
         Route::post('/makeMember', [MessageController::class, 'create']);
     });
 
@@ -97,5 +109,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Routes for Guards
-    Route::middleware(['checkUserRole:Guards'])->group(function () {});
+    Route::post('/guardUpdate', [GuardMobileController::class, 'UpdateGuard']);
+    Route::post('/change-g-password', [GuardMobileController::class, 'changePassword']);
+    Route::post('/g-review', [GuardMobileController::class, 'reviews']);
+    Route::post('/g-alarm', [GuardMobileController::class, 'startAlram']);
+    Route::get('/guardlogout', [GuardMobileController::class, 'logout']);
+    Route::get('/g-attendence', [GuardMobileController::class, 'getAttendence']);
 });

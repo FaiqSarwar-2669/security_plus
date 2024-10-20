@@ -157,7 +157,7 @@ class RegisterationController extends Controller
         $newUser->front = '';
         $newUser->back = '';
         $newUser->certificate = '';
-        $newUser->profile = asset('assets/images/default.png');;
+        $newUser->profile = asset('assets/images/default.png');
         $newUser->save();
 
         Mail::to($request->input('email'))->queue(new welcomeMail($request->input('bussiness_owner')));
