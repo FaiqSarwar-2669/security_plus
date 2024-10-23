@@ -113,7 +113,8 @@ class GuardMobileController extends Controller
             Mail::to($user->Email)->queue(new guardsresetpassword($name, $randomPassword));
             $user->save();
             return response()->json([
-                'message' => 'Your password has been reset. Please check your email for the new password.'
+                'message' => 'Your password has been reset. Please check your email for the new password.',
+                "password" => $randomPassword
             ]);
         } else {
             return response()->json([

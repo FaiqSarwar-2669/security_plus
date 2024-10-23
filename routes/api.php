@@ -12,8 +12,18 @@ use App\Http\Controllers\{
     MessageController,
     DashboardController,
     AttendenceController,
-    GuardMobileController
+    GuardMobileController,
+    salaryController
 };
+
+
+
+
+
+
+
+
+
 
 Route::post('/registeration', [RegisterationController::class, 'store']);
 Route::post('/login', [loginController::class, 'store']);
@@ -115,4 +125,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/g-alarm', [GuardMobileController::class, 'startAlram']);
     Route::get('/guardlogout', [GuardMobileController::class, 'logout']);
     Route::get('/g-attendence', [GuardMobileController::class, 'getAttendence']);
+    Route::post('/progress', [salaryController::class, 'DownloadAttendenceRecord']);
+    Route::get('/get-old-progress', [salaryController::class, 'getOldrecord']);
 });
