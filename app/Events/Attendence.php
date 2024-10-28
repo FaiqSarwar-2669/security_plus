@@ -10,16 +10,17 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class Attendence
+class Attendence implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public $message;
+    public function __construct($message)
     {
-        //
+        $this->message = $message;
     }
 
     /**
@@ -30,7 +31,19 @@ class Attendence
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new Channel('Attendence'),
+        ];
+    }
+
+    public function broadcastAs()
+    {
+        return 'attention';
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'message' => $this->message,
         ];
     }
 }

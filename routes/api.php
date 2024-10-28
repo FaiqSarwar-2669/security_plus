@@ -13,7 +13,8 @@ use App\Http\Controllers\{
     DashboardController,
     AttendenceController,
     GuardMobileController,
-    salaryController
+    salaryController,
+    paymentController
 };
 
 
@@ -93,6 +94,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/markAttendence', [AttendenceController::class, 'saveAttendence']);
         Route::get('/getAttendence/{id}', [AttendenceController::class, 'getAttendence']);
         Route::post('/makeMember', [MessageController::class, 'create']);
+
+        Route::get('/alert-guards', [AttendenceController::class, 'alert']);
+        Route::post('/process-payment', [paymentController::class, 'processPayment']);
     });
 
     // Routes for Admin

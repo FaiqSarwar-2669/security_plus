@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendenceModel;
 use Carbon\Carbon;
 use App\Models\ContractModel;
+use App\Events\Attendence;
 
 class AttendenceController extends Controller
 {
@@ -107,6 +108,12 @@ class AttendenceController extends Controller
             ]);
         }
     }
+
+    public function alert()
+    {
+        broadcast(new Attendence("Ready for face recognization"))->toOthers();
+    }
+
     public function getAttendence(String $id)
     {
         $array = [];
