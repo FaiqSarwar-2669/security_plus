@@ -77,6 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/deactivateGuard/{id}', [GuardController::class, 'deactiveGuards']);
         Route::get('/firedGuard/{id}', [GuardController::class, 'firedGuard']);
         Route::get('/viewGuard/{id}', [GuardController::class, 'view']);
+        Route::get('/get-old-company-payments', [salaryController::class, 'getOldcompany']);
+        Route::post('/get-filter-data', [salaryController::class, 'filterRecord']);
     });
 
     // Routes for Service Takers Client

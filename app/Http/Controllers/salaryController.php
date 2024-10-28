@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Barryvdh\DomPDF\Facade\PDF;
 use App\Models\AttendenceModel;
 use Illuminate\Http\Request;
+use App\Models\CompanyPayment;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -40,6 +41,29 @@ class salaryController extends Controller
             ->get();
         return response()->json([
             'months' => $months
+        ], 200);
+    }
+
+    public function getOldcompany()
+    {
+        $user = auth()->user();
+        $months = CompanyPayment::where('user_id', $user->id)
+            ->select(DB::raw('DISTINCT DATE_FORMAT(created_at, "%Y") as year'))
+            ->orderBy('year', 'desc')
+            ->get();
+        return response()->json([
+            'months' => $months
+        ], 200);
+    }
+
+    public function filterRecord(Request $request)
+    {
+        $user = auth()->user();
+        $startOfMonth = $request->input('start-date');
+        $endOfMonth = $request->input('end-date');
+        $record = CompanyPayment::where('user_id', $user->id)->whereBetween('created_at', [$startOfMonth, $endOfMonth])->get();
+        return response()->json([
+            'data' => $record
         ], 200);
     }
 }
