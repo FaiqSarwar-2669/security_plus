@@ -78,11 +78,11 @@ class salaryController extends Controller
         $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
         $existing = GuardPaymentsModel::whereBetween('created_at', [$startOfMonth, $endOfMonth])->get();
         if ($existing->isEmpty()) {
-            $guards = Guards::where('user_id', '2')->get();
+            $guards = Guards::where('user_id', $user->id)->get();
             foreach ($guards as $guard) {
                 $newRecord = new GuardPaymentsModel();
                 $newRecord->guard_id = $guard->id;
-                $newRecord->company_id = '2';
+                $newRecord->company_id = $user->id;
                 $baseSalary = $guard->Salary;
                 $newRecord->total = $baseSalary;
                 $newRecord->status = '0';
@@ -110,7 +110,7 @@ class salaryController extends Controller
             ], 200);
         } else {
             return response()->json([
-                'message' => 'Already Loaded'
+                'error' => 'Already Loaded'
             ], 403);
         }
     }

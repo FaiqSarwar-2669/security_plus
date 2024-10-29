@@ -20,7 +20,7 @@ use App\Http\Controllers\{
 
 
 
-Route::get('/load-salries', [salaryController::class, 'calculateCurrentMonthSallries']);
+
 
 
 
@@ -79,6 +79,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/viewGuard/{id}', [GuardController::class, 'view']);
         Route::get('/get-old-company-payments', [salaryController::class, 'getOldcompany']);
         Route::post('/get-filter-data', [salaryController::class, 'filterRecord']);
+        Route::get('/load-salries', [salaryController::class, 'calculateCurrentMonthSallries']);
+        Route::post('/filter-guard-salries', [salaryController::class, 'filterGuardRecord']);
+        Route::get('/mark-as-paid/{id}', [salaryController::class, 'markAsPaid']);
     });
 
     // Routes for Service Takers Client
