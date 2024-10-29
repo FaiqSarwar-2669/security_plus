@@ -86,6 +86,7 @@ class salaryController extends Controller
                 $baseSalary = $guard->Salary;
                 $newRecord->total = $baseSalary;
                 $newRecord->status = '0';
+                $newRecord->name = $guard->First_Name. ' '. $guard->Last_Name;
 
                 $contracts = ContractModel::where('Guards_id', $guard->id)->get();
                 if ($contracts) {

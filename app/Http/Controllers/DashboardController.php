@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Guards;
 use App\Models\ContractModel;
+use App\Models\review;
 
 class DashboardController extends Controller
 {
@@ -30,11 +31,19 @@ class DashboardController extends Controller
         $contractedComapiese = ContractModel::where('OrganizationId', $user->id)->distinct('CompanyId')
             ->groupBy('OrganizationId')
             ->count('CompanyId');
+
+        $reviews = review::where('user_id', $user->id)->get();
+        $total_reviews = $reviews->count();
+        $maxScore = 5;
+        $totalRating = $reviews->sum('rating');
+        $averageRatingPercentage = $total_reviews > 0 ? ($totalRating / ($maxScore * $total_reviews)) * 100 : 0;
+        
         return response()->json([
             'total' => $totalGuards,
             'duty' => $remainingGuards,
             'remaining' => $availableGuards,
-            'totalcontract' =>  $contractedComapiese
+            'totalcontract' =>  $contractedComapiese,
+            'rating' => $averageRatingPercentage
         ], 200);
     }
 

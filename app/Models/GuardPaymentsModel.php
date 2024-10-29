@@ -12,6 +12,7 @@ class GuardPaymentsModel extends Model
 
     protected $fillable = [
         'guard_id',
+        'name',
         'company_id',
         'payablbe',
         'deduction',

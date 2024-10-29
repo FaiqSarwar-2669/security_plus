@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('guard_id')->nullable()->references('id')->on('Guards')->onUpdate('cascade')
                 ->onDelete('cascade');
+            $table->string('name');
             $table->string('company_id');
             $table->string('payablbe');
             $table->string('deduction');
