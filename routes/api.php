@@ -20,7 +20,7 @@ use App\Http\Controllers\{
 
 
 
-
+Route::get('/load-salries', [salaryController::class, 'calculateCurrentMonthSallries']);
 
 
 
