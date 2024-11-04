@@ -6,7 +6,7 @@ use App\Http\Controllers\Organizations;
 use App\Http\Controllers\paymentController;
 
 Route::get('/', function () {
-    return view('emails.bannedCompany');
+    return view('welcome');
 });
 
 Route::get('/welcomeMail', function () {

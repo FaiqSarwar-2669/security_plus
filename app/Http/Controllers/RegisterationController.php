@@ -327,7 +327,7 @@ class RegisterationController extends Controller
             $user->street_address = $request->input('street_address');
             $user->city_name = $request->input('city_name');
             $user->province = $request->input('province');
-            $user->cnic = $request->input('cnic');
+            $user->cnic = $request->input('cnic') ? $request->input('cnic') : '';
 
             if ($request->file('profile')) {
                 $profileImage = $request->file('profile');
