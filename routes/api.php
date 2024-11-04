@@ -22,10 +22,6 @@ use App\Http\Controllers\{
 
 
 
-
-
-
-
 Route::post('/registeration', [RegisterationController::class, 'store']);
 Route::post('/login', [loginController::class, 'store']);
 
@@ -108,6 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware(['checkUserRole:Admin'])->group(function () {
 
         Route::post('/newPassword', [RegisterationController::class, 'newPassword']);
+        Route::get('/get-dashboard-data', [DashboardController::class, 'AdminDashboards']);
 
         //for all organizations and companies
         Route::post('/remindRegisteration', [RegisterationController::class, 'reminderOrganizationRegisteration']);

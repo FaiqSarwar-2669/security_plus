@@ -5,11 +5,38 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Guards;
+use App\Models\AttendenceModel;
 use App\Models\ContractModel;
 use App\Models\review;
+use Carbon\Carbon;
+use App\Models\registeration;
 
 class DashboardController extends Controller
 {
+
+
+    public function getAttendense(string $id)
+    {
+        $today = Carbon::now()->toDateString();
+        $total = 0;
+        $counting = 0;
+
+        $getAttendenseForGuard = ContractModel::where('OrganizationId', $id)->get();
+
+        foreach ($getAttendenseForGuard as $item) {
+            $dbDate = AttendenceModel::whereDate('created_at', $today)
+                ->where('Guard_id', $item->Guards_id)->first();
+            if ($dbDate) {
+                $total += $dbDate->Percentage;
+                $counting++;
+            }
+        }
+
+        $averaAttencence = $counting > 0 ? ($total / $counting) : 0;
+
+        return $averaAttencence;
+    }
+
 
     public function ServiceProvider()
     {
@@ -37,13 +64,16 @@ class DashboardController extends Controller
         $maxScore = 5;
         $totalRating = $reviews->sum('rating');
         $averageRatingPercentage = $total_reviews > 0 ? ($totalRating / ($maxScore * $total_reviews)) * 100 : 0;
-        
+
+        $todayAtttendence = $this->getAttendense($user->id);
+
         return response()->json([
             'total' => $totalGuards,
             'duty' => $remainingGuards,
             'remaining' => $availableGuards,
             'totalcontract' =>  $contractedComapiese,
-            'rating' => $averageRatingPercentage
+            'rating' => $averageRatingPercentage,
+            'attendence' => $todayAtttendence,
         ], 200);
     }
 
@@ -57,6 +87,36 @@ class DashboardController extends Controller
         return response()->json([
             'total' => $guards,
             'contracts' => $contracts
+        ], 200);
+    }
+
+
+    public function AdminDashboards()
+    {
+        $guards = Guards::count();
+        $contracts = ContractModel::count();
+        $clients = registeration::where('bussiness_type', 'Taker')->count();
+        $totalProviders = registeration::where('bussiness_type', 'Provider')->count();
+
+        // Application Satisfaction
+        $appReviews = review::where('user_id', '1')->select('rating')->get();
+        $totalAppRating = $appReviews->sum('rating');
+        $appCount = $appReviews->count();
+        $appRating = $appCount > 0 ? $totalAppRating / $appCount : 0;
+
+        // Company Satisfaction
+        $companyReviews = review::where('user_id', '!=', '1')->select('rating')->get();
+        $totalCompanyRating = $companyReviews->sum('rating');
+        $totalCompanyCount = $companyReviews->count();
+        $companyRating = $totalCompanyCount > 0 ? $totalCompanyRating / $totalCompanyCount : 0;
+
+        return response()->json([
+            'guards' => $guards,
+            'contracts' => $contracts,
+            'clients' => $clients,
+            'total_providers' => $totalProviders,
+            'app_rating' => $appRating,
+            'company_rating' => $companyRating,
         ], 200);
     }
 }
