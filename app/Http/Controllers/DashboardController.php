@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Guards;
 use App\Models\AttendenceModel;
@@ -10,6 +11,8 @@ use App\Models\ContractModel;
 use App\Models\review;
 use Carbon\Carbon;
 use App\Models\registeration;
+use App\Mail\Updates;
+use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {
@@ -118,5 +121,57 @@ class DashboardController extends Controller
             'app_rating' => $appRating,
             'company_rating' => $companyRating,
         ], 200);
+    }
+
+
+    public function updateMessage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
+            'message' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors()
+            ]);
+        }
+
+        if ($request->input('type') == "provider") {
+            $user = registeration::where('bussiness_type', 'Provider')->get();
+            foreach ($user as $item) {
+                Mail::to($item->email)->queue(new Updates($request->input('message')));
+            }
+            return response()->json([
+                'message' => 'Send Successfully'
+            ], 200);
+        } else if ($request->input('type') == "client") {
+            $user = registeration::where('bussiness_type', 'Taker')->get();
+            foreach ($user as $item) {
+                Mail::to($item->email)->queue(new Updates($request->input('message')));
+            }
+            return response()->json([
+                'message' => 'Send Successfully'
+            ], 200);
+        } else if ($request->input('type') == "guards") {
+            $user = Guards::get();
+            foreach ($user as $item) {
+                Mail::to($item->Email)->queue(new Updates($request->input('message')));
+            }
+            return response()->json([
+                'message' => 'Send Successfully'
+            ], 200);
+        } else if ($request->input('type') == "all") {
+            $guards = Guards::get();
+            $user = registeration::get();
+            foreach ($user as $item) {
+                Mail::to($item->email)->queue(new Updates($request->input('message')));
+            }
+            foreach ($guards as $item) {
+                Mail::to($item->Email)->queue(new Updates($request->input('message')));
+            }
+            return response()->json([
+                'message' => 'Send Successfully'
+            ], 200);
+        }
     }
 }

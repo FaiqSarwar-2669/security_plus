@@ -50,7 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getmessages/{id}', [MessageController::class, 'getMessage']);
 
     Route::get('/logout', [loginController::class, 'logout']);
-
+    Route::post('/newPassword', [RegisterationController::class, 'newPassword']);
     // Routes for Service Provider Companies
     Route::middleware(['checkUserRole:Provider'])->group(function () {
 
@@ -103,8 +103,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Routes for Admin
     Route::middleware(['checkUserRole:Admin'])->group(function () {
 
-        Route::post('/newPassword', [RegisterationController::class, 'newPassword']);
+        
         Route::get('/get-dashboard-data', [DashboardController::class, 'AdminDashboards']);
+        Route::post('/updates-message', [DashboardController::class, 'updateMessage']);
 
         //for all organizations and companies
         Route::post('/remindRegisteration', [RegisterationController::class, 'reminderOrganizationRegisteration']);

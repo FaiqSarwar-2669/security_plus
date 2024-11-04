@@ -10,7 +10,7 @@ Route::get('/', function () {
 });
 
 Route::get('/welcomeMail', function () {
-    return view('askingForApproval');
+    return view('Update');
 });
 Route::get('/viewApplications/{id}', [Organizations::class, 'viewJobApplication']);
 
