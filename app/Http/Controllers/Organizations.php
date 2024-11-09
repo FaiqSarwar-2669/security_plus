@@ -32,8 +32,13 @@ class Organizations extends Controller
                 $sum = $sum + $review->rating;
                 $total = $total + 5;
             }
-            $result = ($sum / $total) * 100;
-            $result = $result / 20;
+            if ($total > 0) {
+                $result = ($sum / $total) * 100;
+                $final = $result > 0 ? $result : 0;
+                $result = $final / 20;
+            } else {
+                $result = 0;
+            }
             $rating[] = [
                 'id' => $item->id,
                 'bussiness_owner' => $item->bussiness_owner,

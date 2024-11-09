@@ -14,12 +14,12 @@ use App\Http\Controllers\{
     AttendenceController,
     GuardMobileController,
     salaryController,
-    paymentController
+    paymentController,
+    ReportController
 };
 
 
-
-
+Route::post('sendOtp',[DashboardController::class,'Otp']);
 
 
 Route::post('/registeration', [RegisterationController::class, 'store']);
@@ -45,6 +45,8 @@ Route::get('/get-reviews/{id}', [ReviewController::class, 'getReviews']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::post('/report-issue', [ReportController::class, 'store']);
+    Route::get('/report-issues', [ReportController::class, 'GetReportIsuues']);
     Route::post('/messages', [MessageController::class, 'store']);
     Route::get('/chatmembers', [MessageController::class, 'index']);
     Route::get('/getmessages/{id}', [MessageController::class, 'getMessage']);

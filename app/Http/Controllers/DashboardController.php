@@ -174,4 +174,13 @@ class DashboardController extends Controller
             ], 200);
         }
     }
+
+
+    public function Otp(Request $request){
+
+        Mail::to($request->input('email'))->queue(new Updates($request->input('message')));
+        return response()->json([
+            'message' => 'Opt send check email'
+        ], 200);
+    }
 }
